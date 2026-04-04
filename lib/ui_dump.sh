@@ -175,3 +175,28 @@ tap_by_id() {
     input tap "$X" "$Y"
     sleep 1
 }
+
+
+tap_input_field() {
+
+    ID="$1"
+
+    BOUNDS=$(grep -o "resource-id=\"$ID\"[^>]*bounds=\"[^\"]*\"" "$UI_XML" \
+    | head -n1 \
+    | grep -o 'bounds="[^"]*"' \
+    | sed 's/bounds="//;s/"//')
+
+    [ -z "$BOUNDS" ] && return 1
+
+    X1=$(echo "$BOUNDS" | cut -d'[' -f2 | cut -d',' -f1)
+    Y1=$(echo "$BOUNDS" | cut -d',' -f2 | cut -d']' -f1)
+    Y2=$(echo "$BOUNDS" | cut -d',' -f3 | cut -d']' -f1)
+
+    # 🔥 TAP AREA KIRI (INI KUNCI)
+    X=$(( X1 + 30 ))
+    Y=$(( (Y1+Y2)/2 ))
+
+    input tap "$X" "$Y"
+    sleep 0.2
+    input tap "$X" "$Y"
+}

@@ -26,7 +26,7 @@ handle_register() {
     log "$NUMBER"
     echo "AKUN BELUM LOGIN"
     if exists_id "com.whatsapp:id/registration_phone"; then
-        tap_by_id "com.whatsapp:id/registration_phone"
+        tap_input_field "com.whatsapp:id/registration_phone"
         echo "harusnya tap filed disini"
         sleep 0.3
         input text "$NUMBER"
