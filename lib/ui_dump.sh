@@ -39,6 +39,7 @@ detect_screen() {
     if exists_id "com.whatsapp:id/ban_info" || \
         exists_id "com.whatsapp:id/ban_info_text_layout" || \
         exists_text "This account can't use WhatsApp" || \
+        exists_text "Your phone number is no longer" || \
         exists_text "Download the official"; then
         echo "BANNED"
         return
