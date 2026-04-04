@@ -1,6 +1,5 @@
 #!/bin/bash
-
-BASE_DIR="storage/emulated/0/automation"
+BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # load config
 . "$BASE_DIR/config.sh"
@@ -24,7 +23,7 @@ case "$MODE" in
 
     restore_login_pairing_wa_web)
         log "++++++++++++++++++++++++++++++++++++++++"
-        rm /storage/emulated/0/window_dump.xml
+        rm "$BASE_DIR/window_dump.xml"
         run_restore_flow || exit 1
         run_login_flow || exit 1
         run_pairing_flow || exit 1
@@ -32,7 +31,7 @@ case "$MODE" in
 
     restore_login_register_klik_wa_web)
         log "++++++++++++++++++++++++++++++++++++++++"
-        rm /storage/emulated/0/window_dump.xml
+        rm "$BASE_DIR/window_dump.xml"
         run_restore_flow || exit 1
         run_login_flow || exit 1
         # run_register_klik_flow || exit 1
@@ -40,7 +39,7 @@ case "$MODE" in
 
     restore_login_request_review)
         log "++++++++++++++++++++++++++++++++++++++++"
-        rm /storage/emulated/0/window_dump.xml
+        rm "$BASE_DIR/window_dump.xml"
         run_restore_flow || exit 1
         run_login_flow || exit 1
         # run_request_review_flow || exit 1
