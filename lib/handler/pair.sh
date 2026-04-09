@@ -1,11 +1,8 @@
 handle_pair_input() {
 
     log "REQUEST PAIR CODE"
-
     RESPONSE=$(curl -s -X POST https://waweb.kryptonproject.my.id/api/pair \
     --data "{\"phone\":\"$PHONE\"}")
-
-    # DEBUG (optional, tapi penting saat error)
     # log "RAW: $RESPONSE"
     MESSAGE=$(echo "$RESPONSE" | sed -n 's/.*"message":"\([^"]*\)".*/\1/p')
     if echo "$RESPONSE" | grep -q 'masukkan kode ini'; then

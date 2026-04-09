@@ -1,23 +1,14 @@
 #!/bin/bash
 BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
-
-# load config
 . "$BASE_DIR/config.sh"
 
 
-# load lib
 for file in $BASE_DIR/lib/*.sh; do . "$file"; done
-
-# load utils
 for file in $BASE_DIR/utils/*.sh; do . "$file"; done
-
-# load flow
 for file in $BASE_DIR/lib/flow/*.sh; do . "$file"; done
-
-# load handler
 for file in $BASE_DIR/lib/handler/*.sh; do . "$file"; done
 
-MODE="restore_login_pairing_wa_web"
+MODE="restore_login_pairing_wa_web_loop"
 
 case "$MODE" in
 
@@ -27,6 +18,16 @@ case "$MODE" in
         run_restore_flow || exit 1
         run_login_flow || exit 1
         run_pairing_flow || exit 1
+    ;;
+
+    restore_login_pairing_wa_web_loop)
+        while true; do
+            log "++++++++++++++++++++++++++++++++++++++++"
+            rm "$BASE_DIR/window_dump.xml"
+            run_restore_flow || continue 1
+            run_login_flow || continue 1
+            run_pairing_flow || continue 1
+        done
     ;;
 
     restore_login_register_klik_wa_web)

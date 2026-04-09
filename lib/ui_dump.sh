@@ -1,18 +1,7 @@
 
 BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
 UI_XML="$BASE_DIR/window_dump.xml"
-# Get UI to XML data
-# update_ui() {
-#     UI_XML="/storage/emulated/0/window_dump.xml"
-#     for i in 1 2 3 4 5; do
-#         uiautomator dump "$UI_XML" >/dev/null 2>&1
-#         if grep -q "resource-id=" "$UI_XML" 2>/dev/null; then
-#             return 0
-#         fi
-#         sleep 1
-#     done
-#     return 1
-# }
+
 
 update_ui() {
     UI_XML="$BASE_DIR/window_dump.xml"
@@ -138,18 +127,16 @@ detect_screen() {
 }
 
 
-
-# Get bounds by resource-id from XML
 exists_id() {
     grep -q "resource-id=\"$1\"" "$UI_XML"
 }
 
-# Get bounds by text from XML
+
 exists_text() {
     grep -q "$1" "$UI_XML"
 }
 
-# Tap element by resource-id from XML
+
 tap_by_id() {
 
     ID="$1"
@@ -172,7 +159,6 @@ tap_by_id() {
     X=$(( (X1+X2)/2 ))
     Y=$(( (Y1+Y2)/2 ))
 
-    # echo "TAP $ID → $X,$Y"
     input tap "$X" "$Y"
     sleep 1
 }
@@ -193,7 +179,6 @@ tap_input_field() {
     Y1=$(echo "$BOUNDS" | cut -d',' -f2 | cut -d']' -f1)
     Y2=$(echo "$BOUNDS" | cut -d',' -f3 | cut -d']' -f1)
 
-    # 🔥 TAP AREA KIRI (INI KUNCI)
     X=$(( X1 + 30 ))
     Y=$(( (Y1+Y2)/2 ))
 
