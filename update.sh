@@ -6,7 +6,6 @@ echo "Menghapus versi lama..."
 rm -rf wa_automation_android
 ls
 echo "Mengunduh versi baru..."
-exit 
 git clone https://github.com/dev4ami/wa_automation_android.git"
 su 
 ls
