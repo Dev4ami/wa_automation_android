@@ -1,14 +1,5 @@
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-ls
 cd "$SCRIPT_DIR/.." || exit 1
-ls
-echo "Menghapus versi lama..."
-rm -rf wa_automation_android
-ls
-echo "Mengunduh versi baru..."
+rm -rf wa_automation_android"
 git clone https://github.com/dev4ami/wa_automation_android.git
-su 
-ls
 su -c "chmod -R +x wa_automation_android"
-
-exit 0
