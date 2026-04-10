@@ -47,7 +47,7 @@ run_login_flow() {
             ;;
             LOGOUT)
                 handle_logout
-                continue
+                return 1
             ;;
             WELCOME)
                 handle_welcome

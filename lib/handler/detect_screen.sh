@@ -72,8 +72,9 @@ handle_banned() {
 
 handle_logout() {
     log "LOGOUT SCREEN DETECTED"
-    mv "$FILE" "$FOLDER_BANNED/"
-    log_number "banned" "$PHONE"
+    echo "ACCOUNT LOGGED OUT"
+    mv "$FILE" "$FOLDER_LOGOUT/"
+    log_number "logout" "$PHONE"
     if exists_id "com.whatsapp:id/re_login_button"; then
         tap_by_id "com.whatsapp:id/re_login_button"
         return

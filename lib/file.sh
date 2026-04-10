@@ -1,28 +1,44 @@
 
 # function log number no duplicate in file
+# save_unique() {
+#     TEXT="$1"
+#     FILE="$2"
+#     [ -f "$FILE" ] || touch "$FILE"
+#     if ! grep -Fxq "$TEXT" "$FILE"; then
+#         echo "$TEXT" >> "$FILE"
+#     fi
+# }
+
+
+
+
+
+
 save_unique() {
-    TEXT="$1"
-    FILE="$2"
-    [ -f "$FILE" ] || touch "$FILE"
-    if ! grep -Fxq "$TEXT" "$FILE"; then
-        echo "$TEXT" >> "$FILE"
+    local TEXT="$1"
+    local DEST_FILE="$2" # Gunakan nama lain (misal DEST_FILE), dan pastikan local
+    [ -f "$DEST_FILE" ] || touch "$DEST_FILE"
+    if ! grep -Fxq "$TEXT" "$DEST_FILE"; then
+        echo "$TEXT" >> "$DEST_FILE"
     fi
 }
 
 log_number() {
-    STATUS="$1"
-    VALUE="$2"
-    TARGET_FILE=""
+    local STATUS="$1"
+    local VALUE="$2"
+    local TARGET_FILE="" # Gunakan nama TARGET_FILE dan wajib local
+    
     case "$STATUS" in
-        success) FILE="$FILE_SUCCESS" ;;
-        logout) FILE="$FILE_LOGOUT" ;;
-        banned) FILE="$FILE_BANNED" ;;
-        timeout) FILE="$FILE_TIMEOUT" ;;
-        terdaftar) FILE="$FILE_TERDAFTAR" ;; 
-        invalid) FILE="$FILE_INVALID" ;;
-        failed_pairing) FILE="$FILE_FAILED_PAIRING" ;;
+        success) TARGET_FILE="$FILE_SUCCESS" ;;
+        logout) TARGET_FILE="$FILE_LOGOUT" ;;
+        banned) TARGET_FILE="$FILE_BANNED" ;;
+        timeout) TARGET_FILE="$FILE_TIMEOUT" ;;
+        terdaftar) TARGET_FILE="$FILE_TERDAFTAR" ;; 
+        invalid) TARGET_FILE="$FILE_INVALID" ;;
+        failed_pairing) TARGET_FILE="$FILE_FAILED_PAIRING" ;;
         *) return ;;
     esac
 
-    save_unique "$VALUE" "$FILE"
+    # Lempar ke save_unique
+    save_unique "$VALUE" "$TARGET_FILE"
 }
