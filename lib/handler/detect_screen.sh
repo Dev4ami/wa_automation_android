@@ -25,21 +25,23 @@ handle_register() {
     NUMBER="${PHONE#62}"
     log "$NUMBER"
     echo "AKUN BELUM LOGIN"
-    if exists_id "com.whatsapp:id/registration_phone"; then
-        tap_input_field "com.whatsapp:id/registration_phone"
-        echo "harusnya tap filed disini"
-        sleep 0.3
-        input text "$NUMBER"
-        sleep 0.5
-    fi
-    if exists_id "com.whatsapp:id/registration_submit"; then
-        tap_by_id "com.whatsapp:id/registration_submit"
-        return
-    fi
-    if exists_id "com.whatsapp:id/continue_button"; then
-        tap_by_id "com.whatsapp:id/continue_button"
-        return
-    fi
+    mv "$FILE" "$FOLDER_LOGOUT/"
+    log_number "logout" "$PHONE"
+    # if exists_id "com.whatsapp:id/registration_phone"; then
+    #     tap_input_field "com.whatsapp:id/registration_phone"
+    #     echo "harusnya tap filed disini"
+    #     sleep 0.3
+    #     input text "$NUMBER"
+    #     sleep 0.5
+    # fi
+    # if exists_id "com.whatsapp:id/registration_submit"; then
+    #     tap_by_id "com.whatsapp:id/registration_submit"
+    #     return
+    # fi
+    # if exists_id "com.whatsapp:id/continue_button"; then
+    #     tap_by_id "com.whatsapp:id/continue_button"
+    #     return
+    # fi
 }
 
 handle_verify() {
@@ -74,6 +76,8 @@ handle_banned() {
 
 handle_logout() {
     log "LOGOUT SCREEN DETECTED"
+    mv "$FILE" "$FOLDER_BANNED/"
+    log_number "banned" "$PHONE"
     if exists_id "com.whatsapp:id/re_login_button"; then
         tap_by_id "com.whatsapp:id/re_login_button"
         return
