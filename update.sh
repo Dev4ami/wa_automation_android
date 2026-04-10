@@ -6,7 +6,9 @@ echo "Menghapus versi lama..."
 rm -rf wa_automation_android
 ls
 echo "Mengunduh versi baru..."
-su "$USER_TERMUX" -c "cd $PWD && git clone https://github.com/dev4ami/wa_automation_android.git"
+exit 
+git clone https://github.com/dev4ami/wa_automation_android.git"
+su 
 ls
 chmod -R +x wa_automation_android
 
