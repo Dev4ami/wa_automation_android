@@ -23,8 +23,6 @@ handle_restore() {
 handle_register() {
     log "REGISTER SCREEN DETECTED"
     echo "AKUN BELUM LOGIN"
-    mv "$FILE" "$FOLDER_LOGOUT/"
-    log_number "logout" "$PHONE"
     # if exists_id "com.whatsapp:id/registration_phone"; then
     #     tap_input_field "com.whatsapp:id/registration_phone"
     #     echo "harusnya tap filed disini"
@@ -95,12 +93,12 @@ handle_welcome() {
 handle_phone_prefill() {
     log "PHONE PREFILL SCREEN DETECTED"
     echo "AKUN BELUM LOGIN, BUTUH VERIFIKASI"
-    if exists_id "android:id/button2"; then
-        tap_by_id "android:id/button2"
-        return
-    fi
-    # mv "$FILE" "$FOLDER_LOGOUT/"
-    # log_number "logout" "$PHONE"
+    # if exists_id "android:id/button2"; then
+    #     tap_by_id "android:id/button2"
+    #     return
+    # fi
+    mv "$FILE" "$FOLDER_LOGOUT/"
+    log_number "logout" "$PHONE"
 }
 
 # handle_input_number() {

@@ -55,7 +55,7 @@ run_login_flow() {
             ;;
             PHONE_PREFILL)
                 handle_phone_prefill
-                continue
+                return 1
             ;;
             SYNCING_WHATSAPP)
                 handle_syncing_data
