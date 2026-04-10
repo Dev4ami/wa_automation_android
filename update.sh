@@ -4,5 +4,3 @@ git pull
 chmod -R +x *
 echo "Update selesai!"
 exit 0
-
-
