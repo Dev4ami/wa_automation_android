@@ -22,8 +22,6 @@ handle_restore() {
 
 handle_register() {
     log "REGISTER SCREEN DETECTED"
-    NUMBER="${PHONE#62}"
-    log "$NUMBER"
     echo "AKUN BELUM LOGIN"
     mv "$FILE" "$FOLDER_LOGOUT/"
     log_number "logout" "$PHONE"
