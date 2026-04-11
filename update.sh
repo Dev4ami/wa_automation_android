@@ -1,5 +1,5 @@
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-cd "$SCRIPT_DIR/" || exit 1
+cd "$SCRIPT_DIR" || exit 1
 echo "Menghapus versi lama..."
 rm -rf wa_automation_android
 echo "Mengunduh versi baru..."
