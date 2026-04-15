@@ -1,7 +1,7 @@
 handle_pair_input() {
 
     log "REQUEST PAIR CODE"
-    RESPONSE=$(curl -s -X POST https://waweb.kryptonproject.my.id/api/pair \
+    RESPONSE=$(curl -s -X POST http://127.0.0.1:4000/api/pair \
     --data "{\"phone\":\"$PHONE\"}")
     # log "RAW: $RESPONSE"
     MESSAGE=$(echo "$RESPONSE" | sed -n 's/.*"message":"\([^"]*\)".*/\1/p')
