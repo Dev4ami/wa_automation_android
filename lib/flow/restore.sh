@@ -30,6 +30,7 @@ extract_phone() {
     PREF_FILE=$(find "$DIR" -path "*/com.whatsapp/shared_prefs/com.whatsapp_preferences_light.xml" | head -n1)
     if [ -z "$PREF_FILE" ]; then
         log "FILE PREF TIDAK DITEMUKAN"
+        mv "$FILE" "$FOLDER_INVALID/"
         return 1
     fi
     log "PREF FILE: $PREF_FILE"
