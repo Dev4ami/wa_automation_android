@@ -33,10 +33,10 @@ FILE_ACTIVITY="$FOLDER_LOG/activity.txt"
 # =====================
 # SYSTEM
 # =====================
-# FOLDER_WA_SYMLINK="/data/data/com.whatsapp"
-# FOLDER_WA="/data/user/0/com.whatsapp"
-FOLDER_WA_SYMLINK="/data/data/com.whatsapp.w4b"
-FOLDER_WA="/data/user/0/com.whatsapp.w4b"
+FOLDER_WA_SYMLINK="/data/data/com.whatsapp"
+FOLDER_WA="/data/user/0/com.whatsapp"
+# FOLDER_WA_SYMLINK="/data/data/com.whatsapp.w4b"
+# FOLDER_WA="/data/user/0/com.whatsapp.w4b"
 TEMP="/data/local/tmp/restore_wa"
 
 # =====================
