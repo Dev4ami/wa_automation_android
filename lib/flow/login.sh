@@ -69,7 +69,18 @@ run_login_flow() {
                 handle_backup_validation
                 continue
             ;;
+            SKIP_RESTORE)
+                handle_skip_restore
+                sleep 1
+                continue
+            ;;
 
+            SKIP_RESTORE_CONFIRM)
+                handle_skip_restore_confirm
+                sleep 1
+                continue
+            ;;
+            
             *)
                 log "MENUNGGU REDIRECT..."
             ;;

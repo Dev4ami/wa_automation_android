@@ -34,6 +34,18 @@ detect_screen() {
         return
     fi
 
+    if exists_text "Something went wrong with your chat history" && exists_id "android:id/button2"; then
+        echo "SKIP_RESTORE"
+        return
+    fi
+
+
+    if exists_text "If you skip restore" && exists_id "android:id/button1"; then
+        echo "SKIP_RESTORE_CONFIRM"
+        return
+    fi
+
+
     if exists_text "Restore chat history"; then
         echo "RESTORE"
         return

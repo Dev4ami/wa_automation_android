@@ -120,6 +120,22 @@ handle_syncing_data() {
     sleep 2
 }
 
+handle_skip_restore() {
+    log "RESTORE CHAT HISTORY ERROR - SKIP RESTORE"
+    if exists_id "android:id/button2"; then
+        tap_by_id "android:id/button2"
+        return
+    fi
+}
+
+handle_skip_restore_confirm() {
+    log "CONFIRM SKIP RESTORE DIALOG DETECTED"
+    if exists_id "android:id/button1"; then
+        tap_by_id "android:id/button1"
+        return
+    fi
+}
+
 handle_pair_failed() {
     log "PAIRING FAILED SCREEN DETECTED"
     echo "PAIRING FAILED"
