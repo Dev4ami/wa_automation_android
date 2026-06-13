@@ -8,6 +8,7 @@ chmod -R +x wa_automation_android
 mv wa_automation_android/update.sh update.sh
 mv wa_automation_android/stop.sh stop.sh
 echo "Update selesai!"
+sleep 3
 exit 0
 
 
