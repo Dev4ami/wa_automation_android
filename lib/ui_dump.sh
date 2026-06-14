@@ -34,6 +34,11 @@ detect_screen() {
         return
     fi
 
+    if exists_text "Menginisialisasi" || exists_text "Initializing"; then
+        echo "INITIALIZING"
+        return
+    fi
+
     if exists_text "Something went wrong with your chat history" && exists_id "android:id/button2"; then
         echo "SKIP_RESTORE"
         return

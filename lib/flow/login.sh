@@ -5,7 +5,9 @@ run_login_flow() {
     log "START LOGIN"
     
     START_TIME=$(date +%s)
-    MAX_WAIT=60
+    MAX_WAIT="${LOGIN_MAX_WAIT:-180}"
+    STUCK_SINCE=0
+    STUCK_RESTARTS=0
     while true; do
         if ! update_ui; then
             log "UI NOT READY, RETRY..."
@@ -80,11 +82,39 @@ run_login_flow() {
                 sleep 1
                 continue
             ;;
-            
+
+            INITIALIZING)
+                log "INITIALIZING (loading data)..."
+            ;;
+
             *)
                 log "MENUNGGU REDIRECT..."
             ;;
 
+        esac
+
+        # Auto-recovery: WA nyangkut saat inisialisasi/loading.
+        # Tiru fix manual: force-stop + buka ulang WA.
+        case "$STATE" in
+            UNKNOWN|INITIALIZING)
+                NOW=$(date +%s)
+                [ "$STUCK_SINCE" -eq 0 ] && STUCK_SINCE=$NOW
+                if [ $((NOW - STUCK_SINCE)) -ge "${STUCK_RESTART_AFTER:-25}" ]; then
+                    if [ "$STUCK_RESTARTS" -lt "${STUCK_MAX_RESTARTS:-3}" ]; then
+                        STUCK_RESTARTS=$((STUCK_RESTARTS+1))
+                        log "STUCK ${STUCK_RESTART_AFTER:-25}s ($STATE) -> RESTART WA #$STUCK_RESTARTS"
+                        am force-stop "$WA_PKG"
+                        sleep 2
+                        am start -n "$WA_PKG/com.whatsapp.Main"
+                        sleep 2
+                        STUCK_SINCE=0
+                        START_TIME=$(date +%s)
+                    fi
+                fi
+            ;;
+            *)
+                STUCK_SINCE=0
+            ;;
         esac
 
         NOW=$(date +%s)

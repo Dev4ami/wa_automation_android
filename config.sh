@@ -42,6 +42,13 @@ FOLDER_WA="/data/user/0/$WA_PKG"
 TEMP="/data/local/tmp/restore_wa"
 
 # =====================
+# LOGIN AUTO-RECOVERY (init/loading hang)
+# =====================
+LOGIN_MAX_WAIT=180        # detik, total tunggu login sebelum timeout
+STUCK_RESTART_AFTER=10    # detik stuck (UNKNOWN/INITIALIZING) sebelum restart WA
+STUCK_MAX_RESTARTS=3      # maksimal restart WA otomatis per login
+
+# =====================
 # CREATE FOLDER
 # =====================
 mkdir -p \
