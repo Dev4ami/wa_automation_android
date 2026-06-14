@@ -1,6 +1,6 @@
 run_login_flow() {
     echo "START LOGIN"
-    am start -n com.whatsapp/com.whatsapp.Main
+    am start -n "$WA_PKG/com.whatsapp.Main"
     sleep 1
     log "START LOGIN"
     

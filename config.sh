@@ -33,10 +33,12 @@ FILE_ACTIVITY="$FOLDER_LOG/activity.txt"
 # =====================
 # SYSTEM
 # =====================
-FOLDER_WA_SYMLINK="/data/data/com.whatsapp"
-FOLDER_WA="/data/user/0/com.whatsapp"
-# FOLDER_WA_SYMLINK="/data/data/com.whatsapp.w4b"
-# FOLDER_WA="/data/user/0/com.whatsapp.w4b"
+# WA_PKG: default; auto-detected dari isi backup saat restore
+#   com.whatsapp      = WA Personal
+#   com.whatsapp.w4b  = WA Business
+WA_PKG="com.whatsapp"
+FOLDER_WA_SYMLINK="/data/data/$WA_PKG"
+FOLDER_WA="/data/user/0/$WA_PKG"
 TEMP="/data/local/tmp/restore_wa"
 
 # =====================

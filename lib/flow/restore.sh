@@ -1,7 +1,5 @@
 
 prepare_backup_file() {
-    log "STOP WHATSAPP"
-    am force-stop com.whatsapp
     local FILE
     FILE=$(ls "$FOLDER_AKUN"/*.tar.gz 2>/dev/null | head -n1)
     if [ -z "$FILE" ]; then
@@ -9,6 +7,20 @@ prepare_backup_file() {
         return 1
     fi
     echo "$FILE"
+}
+
+# Deteksi package dari hasil extract di TEMP, lalu set WA_PKG + path global.
+# Cek w4b dulu (com.whatsapp.w4b memuat substring com.whatsapp).
+detect_wa_pkg() {
+    if [ -d "$TEMP/data/data/com.whatsapp.w4b" ] || \
+       [ -d "$TEMP/data/user/0/com.whatsapp.w4b" ]; then
+        WA_PKG="com.whatsapp.w4b"
+    else
+        WA_PKG="com.whatsapp"
+    fi
+    FOLDER_WA_SYMLINK="/data/data/$WA_PKG"
+    FOLDER_WA="/data/user/0/$WA_PKG"
+    log "DETECTED WA PACKAGE: $WA_PKG"
 }
 
 
@@ -27,7 +39,7 @@ extract_phone_v1() {
 extract_phone() {
     local DIR="$1"
     local PREF_FILE
-    PREF_FILE=$(find "$DIR" -path "*/com.whatsapp/shared_prefs/com.whatsapp_preferences_light.xml" | head -n1)
+    PREF_FILE=$(find "$DIR" -path "*/$WA_PKG/shared_prefs/${WA_PKG}_preferences_light.xml" | head -n1)
     if [ -z "$PREF_FILE" ]; then
         log "FILE PREF TIDAK DITEMUKAN"
         mv "$FILE" "$FOLDER_INVALID/"
@@ -86,8 +98,8 @@ clear_whatsapp_data_symlink() {
 }
 
 apply_restore() {
-    SRC1="$TEMP/data/data/com.whatsapp"
-    SRC2="$TEMP/data/user/0/com.whatsapp"
+    SRC1="$TEMP/data/data/$WA_PKG"
+    SRC2="$TEMP/data/user/0/$WA_PKG"
     if [ -d "$SRC1" ]; then
         log "RESTORE FROM data/data ✅"
         cp -r "$SRC1/." "$FOLDER_WA/"
@@ -104,7 +116,7 @@ apply_restore() {
 
 fix_permission() {
     chmod -R 700 "$FOLDER_WA"
-    UID=$(dumpsys package com.whatsapp | grep userId | cut -d= -f2)
+    UID=$(dumpsys package "$WA_PKG" | grep userId | cut -d= -f2)
     UID=$((UID-10000))
     chown -R u0_a$UID:u0_a$UID "$FOLDER_WA"
 }
@@ -117,8 +129,12 @@ cleanup_temp() {
 run_restore_flow() {
 
     log "START RESTORE"
-    FILE=$(prepare_backup_file) || return 1 
-    extract_backup "$FILE"  
+    cleanup_temp
+    FILE=$(prepare_backup_file) || return 1
+    extract_backup "$FILE"
+    detect_wa_pkg
+    log "STOP WHATSAPP"
+    am force-stop "$WA_PKG"
     PHONE=$(extract_phone "$TEMP") || return 1  #
     log "PHONE: $PHONE"
     clear_whatsapp_data

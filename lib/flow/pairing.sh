@@ -18,7 +18,7 @@ run_pairing_flow() {
         STATE=$(detect_screen)
         case "$STATE" in
             HOME)
-                am start -n com.whatsapp/com.whatsapp.companiondevice.LinkedDevicesActivity
+                am start -n "$WA_PKG/com.whatsapp.companiondevice.LinkedDevicesActivity"
                 sleep 3
                 continue
             ;;

@@ -25,8 +25,8 @@ detect_screen() {
     CURRENT=$(dumpsys activity activities | grep mResumedActivity | awk '{print $4}')
     
     # XML DATA
-    if exists_id "com.whatsapp:id/ban_info" || \
-        exists_id "com.whatsapp:id/ban_info_text_layout" || \
+    if exists_id "$WA_PKG:id/ban_info" || \
+        exists_id "$WA_PKG:id/ban_info_text_layout" || \
         exists_text "This account can't use WhatsApp" || \
         # exists_text "Your phone number is no longer" || \
         exists_text "Download the official"; then
@@ -51,45 +51,45 @@ detect_screen() {
         return
     fi
 
-    if exists_id "com.whatsapp:id/phone_number_prefill_hint_text_view"; then
+    if exists_id "$WA_PKG:id/phone_number_prefill_hint_text_view"; then
         echo "PHONE_PREFILL"
         return
     fi
 
-    if exists_id "com.whatsapp:id/alertTitle"; then
+    if exists_id "$WA_PKG:id/alertTitle"; then
         echo "PAIR_FAILED"
         return
     fi
 
-    if exists_id "com.whatsapp:id/name"; then
+    if exists_id "$WA_PKG:id/name"; then
         echo "PAIR_SUCCESS"
         return
     fi
 
-    if exists_id  "com.whatsapp:id/registration_name"; then
+    if exists_id  "$WA_PKG:id/registration_name"; then
         echo "INPUT_NAME"
         return
     fi
 
-    if exists_id  "com.whatsapp:id/initial_sync_progress"; then
+    if exists_id  "$WA_PKG:id/initial_sync_progress"; then
         echo "SYNCING_WHATSAPP"
         return
     fi
 
-    if exists_id "com.whatsapp:id/register_email_text_input" || \
-        exists_id "com.whatsapp:id/register_email_text_submit" || \
-        exists_id "com.whatsapp:id/register_email_text_skip"; then
+    if exists_id "$WA_PKG:id/register_email_text_input" || \
+        exists_id "$WA_PKG:id/register_email_text_submit" || \
+        exists_id "$WA_PKG:id/register_email_text_skip"; then
         echo "INPUT_EMAIL"
         return
     fi
 
     if exists_text "If you previously backed up to Google storage" || \
-        exists_id "com.whatsapp:id/chat_transfer_subtitle"; then
+        exists_id "$WA_PKG:id/chat_transfer_subtitle"; then
         echo "POPUP_BACKUP_VALIDATION"
         return
     fi
 
-    if exists_id "com.whatsapp:id/gdrive_new_user_setup_not_now_btn"; then
+    if exists_id "$WA_PKG:id/gdrive_new_user_setup_not_now_btn"; then
         echo "BACKUP_VALIDATION"
         return
     fi
