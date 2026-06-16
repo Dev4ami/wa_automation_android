@@ -1,7 +1,7 @@
 handle_pair_input() {
 
     log "REQUEST PAIR CODE"
-    RESPONSE=$(curl -s -X POST http://wa.dev4ami.my.id/api/pair \
+    RESPONSE=$(curl -s -X POST http://192.168.1.100:4000/api/pair \
     -H "Content-Type: application/json" \
     --data "{\"phone\":\"$PHONE\"}")
     # log "RAW: $RESPONSE"
