@@ -17,7 +17,8 @@ case "$MODE" in
     restore_login_action_loop)
         while true; do
             log "++++++++++++++++++++++++++++++++++++++++"
-            rm "$BASE_DIR/window_dump.xml"
+            rm -f "$BASE_DIR/window_dump.xml"
+            purge_local_tgz
             run_restore_flow || continue
             run_login_flow   || continue
             case "$POST_LOGIN_ACTION" in

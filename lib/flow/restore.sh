@@ -124,6 +124,14 @@ cleanup_temp() {
     rm -rf "$TEMP"/*
 }
 
+# Hapus arsip .tgz lokal di device. Server udah simpan master + pindah
+# QUEUE->DONE via report_result, jadi copy lokal cuma redundan & bikin
+# storage HP penuh. Sisakan .txt log nomor, cache server, session_map.
+# Dipanggil tiap awal loop (sebelum klaim akun baru).
+purge_local_tgz() {
+    find "$FOLDER_AKUN" -type f \( -name '*.tar.gz' -o -name '*.tgz' \) -delete 2>/dev/null
+}
+
 
 run_restore_flow() {
 
