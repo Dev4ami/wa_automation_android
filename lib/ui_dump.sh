@@ -28,9 +28,17 @@ detect_screen() {
     if exists_id "$WA_PKG:id/ban_info" || \
         exists_id "$WA_PKG:id/ban_info_text_layout" || \
         exists_text "This account can't use WhatsApp" || \
-        # exists_text "Your phone number is no longer" || \
         exists_text "Download the official"; then
         echo "BANNED"
+        return
+    fi
+
+    # Nomor tidak lagi terdaftar di HP ini = akun ke-logout (banner di atas
+    # HomeActivity). Harus menang dari deteksi HOME, makanya dicek di sini.
+    if exists_text "tidak lagi terdaftar dengan WhatsApp" || \
+        exists_text "no longer registered with WhatsApp" || \
+        exists_text "Your phone number is no longer"; then
+        echo "LOGOUT"
         return
     fi
 
