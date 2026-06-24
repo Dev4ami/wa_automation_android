@@ -22,8 +22,8 @@ handle_send_input() {
     REFF=$(resolve_user_reff)
     WA_LINK=$(api_register "$PHONE" "$REFF")
     if [ -z "$WA_LINK" ]; then
-        echo "GAGAL DAPAT VERIFY LINK"
-        log "GAGAL REGISTER: $PHONE"
+        echo "GAGAL DAPAT VERIFY LINK ($PHONE): ${REG_ERROR:-unknown}"
+        log "GAGAL REGISTER ($PHONE): ${REG_ERROR:-unknown}"
         mv "$FILE" "$FOLDER_FAILED_REGISTER/"
         log_number "failed_register" "$PHONE"
         return 1
