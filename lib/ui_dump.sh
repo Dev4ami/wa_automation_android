@@ -103,8 +103,21 @@ detect_screen() {
         echo "SCAM_WARNING"
         return
     fi
-    
+
+    if exists_text "is not on WhatsApp" || \
+        exists_text "isn't on WhatsApp" || \
+        exists_text "tidak menggunakan WhatsApp" || \
+        exists_text "belum menggunakan WhatsApp"; then
+        echo "NOT_ON_WA"
+        return
+    fi
+
     # ACTIVITY DATA
+    if echo "$CURRENT" | grep -q "Conversation"; then
+        echo "CHAT"
+        return
+    fi
+
     if echo "$CURRENT" | grep -q "LinkedDevicesEnterCodeActivity"; then
         echo "PAIR"
         return

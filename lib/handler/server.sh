@@ -77,10 +77,24 @@ derive_gateway() {
     GATEWAY="http://${host}:${GATEWAY_PORT}"
 }
 
-# Pastikan SERVER + GATEWAY terisi & valid.
+# Turunkan REGISTER (node /api/register, port REGISTER_PORT) dari host SERVER.
+# Service ada di PC yg sama dgn queue server -> gak perlu scan/hardcode IP.
+derive_register() {
+    if [ -n "$REGISTER_FIXED" ]; then
+        REGISTER="$REGISTER_FIXED"
+        return 0
+    fi
+    local host
+    host=$(echo "$SERVER" | sed -E 's#^https?://([^:/]+).*#\1#')
+    [ -z "$host" ] && return 1
+    REGISTER="http://${host}:${REGISTER_PORT}"
+}
+
+# Pastikan SERVER + GATEWAY + REGISTER terisi & valid.
 ensure_server() {
     _locate_server || return 1
     derive_gateway
+    derive_register
     return 0
 }
 

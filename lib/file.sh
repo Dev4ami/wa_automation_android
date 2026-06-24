@@ -36,6 +36,7 @@ log_number() {
         terdaftar) TARGET_FILE="$FILE_TERDAFTAR" ;; 
         invalid) TARGET_FILE="$FILE_INVALID" ;;
         failed_pairing) TARGET_FILE="$FILE_FAILED_PAIRING" ;;
+        failed_register) TARGET_FILE="$FILE_FAILED_REGISTER" ;;
         *) return ;;
     esac
 

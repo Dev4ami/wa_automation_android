@@ -14,6 +14,7 @@ FOLDER_INVALID="$FOLDER_END/failed" # sesi & web
 FOLDER_RESTORE="$FOLDER_END/restore" # sesi & web
 FOLDER_LOG="$FOLDER_END/log" # sesi & web
 FOLDER_FAILED_PAIRING="$FOLDER_END/failed_pairing" # sesi & web
+FOLDER_FAILED_REGISTER="$FOLDER_END/failed_register" # web (verifikasi/register)
 # =====================
 # RESULT FILE
 # =====================
@@ -24,6 +25,8 @@ FILE_TIMEOUT="$FOLDER_AKUN/timeout.txt" # sesi & web
 FILE_TERDAFTAR="$FOLDER_AKUN/akun_terdaftar.txt" # web
 FILE_INVALID="$FOLDER_AKUN/nomor_tidak_valid.txt" # sesi & web
 FILE_FAILED_PAIRING="$FOLDER_AKUN/nomor_gagal_pairing.txt" # sesi & web
+FILE_FAILED_REGISTER="$FOLDER_AKUN/nomor_gagal_register.txt" # web (verifikasi)
+FILE_SESSION_MAP="$FOLDER_AKUN/session_map.txt" # nomor|session_id|file (buat poll)
 
 # =====================
 # ACTIVITY LOG
@@ -73,6 +76,40 @@ DEVICE_ID="$(getprop ro.serialno 2>/dev/null)"
 CLAIM_IDLE_WAIT=10
 
 # =====================
+# POST-LOGIN ACTION
+# =====================
+# Aksi setelah login sukses:
+#   pairing = link akun ke server (linked device) -> kontrol via wa_gateway
+#   send    = HP kirim pesan verifikasi (api/register), opsional poll status
+#   both    = pairing dulu, lalu send
+POST_LOGIN_ACTION="send"
+
+# =====================
+# REGISTER / VERIFY SEND (service node /api/register port 4500)
+# =====================
+# Host service = host SERVER (PC sama), diturunkan otomatis -> REGISTER.
+REGISTER_PORT=4500
+REGISTER=""
+# Override manual opsional (skip derive): "http://192.168.0.23:4500"
+REGISTER_FIXED=""
+# user_reff: identitas pemilik akun. Sekarang konstanta (lihat resolve_user_reff;
+# gampang di-upgrade ke "dari /claim atau nama file" tanpa ubah pemanggil).
+USER_REFF="automation"
+# Tunggu chat kebuka + tap kirim (detik).
+SEND_MAX_WAIT=60
+
+# --- Cek status verifikasi (poll /api/check_status pakai session_id) ---
+# on  = HP poll sampai verified/timeout, lapor hasil asli
+# off = berhenti di 'terkirim' (lapor success begitu pesan terkirim)
+VERIFY_CHECK="on"
+POLL_MAX_WAIT=120   # 2 menit, samakan dgn timeout server
+POLL_INTERVAL=5     # jeda antar cek (detik)
+# Daftar status (dari /api/check_status) yg dianggap BERHASIL terverifikasi.
+# Sesuaikan kalau server pakai istilah lain. Status di luar ini + bukan
+# pending/timeout/error -> tetap di-poll sampai cap waktu.
+VERIFY_OK_STATUS="success"
+
+# =====================
 # CREATE FOLDER
 # =====================
 mkdir -p \
@@ -84,4 +121,5 @@ mkdir -p \
 "$FOLDER_INVALID" \
 "$FOLDER_LOG" \
 "$TEMP" \
-"$FOLDER_FAILED_PAIRING"
+"$FOLDER_FAILED_PAIRING" \
+"$FOLDER_FAILED_REGISTER"
