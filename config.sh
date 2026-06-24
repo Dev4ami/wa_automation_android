@@ -54,6 +54,10 @@ STUCK_MAX_RESTARTS=3      # maksimal restart WA otomatis per login
 # Port server (samakan dgn yg dipilih saat start account_management [3]).
 # Default 8787 (hindari 7070 = AnyDesk).
 SERVER_PORT=8787
+# Port wa_gateway (node) buat /api/pair. Host-nya = host SERVER (PC sama),
+# diturunkan otomatis -> GATEWAY. Jangan hardcode IP.
+GATEWAY_PORT=4000
+GATEWAY=""
 # Override manual (opsional). Isi kalau mau pin IP & skip auto-scan:
 #   SERVER_FIXED="http://192.168.0.23:7070"
 SERVER_FIXED=""

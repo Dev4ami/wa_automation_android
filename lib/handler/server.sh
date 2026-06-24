@@ -68,8 +68,24 @@ discover_server() {
     echo "$found"
 }
 
-# Pastikan SERVER terisi & valid. Urutan: override > cache > scan.
+# Turunkan GATEWAY (node /api/pair) dari host SERVER, port GATEWAY_PORT.
+# Gateway ada di PC yg sama dgn queue server -> gak perlu scan/hardcode lagi.
+derive_gateway() {
+    local host
+    host=$(echo "$SERVER" | sed -E 's#^https?://([^:/]+).*#\1#')
+    [ -z "$host" ] && return 1
+    GATEWAY="http://${host}:${GATEWAY_PORT}"
+}
+
+# Pastikan SERVER + GATEWAY terisi & valid.
 ensure_server() {
+    _locate_server || return 1
+    derive_gateway
+    return 0
+}
+
+# Cari/validasi SERVER. Urutan: override > cache > scan.
+_locate_server() {
     # 1. Override manual menang mutlak.
     if [ -n "$SERVER_FIXED" ]; then
         SERVER="$SERVER_FIXED"

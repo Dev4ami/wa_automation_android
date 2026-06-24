@@ -1,7 +1,15 @@
 handle_pair_input() {
 
     log "REQUEST PAIR CODE"
-    RESPONSE=$(curl -s -X POST http://192.168.1.100:4000/api/pair \
+    # Gateway diturunkan dari host SERVER (PC sama, port 4000). Tanpa hardcode IP.
+    # Kalau gateway lagi down (transient), JANGAN tandai failed_pairing permanen;
+    # return saja, biar file di-requeue oleh stale-timeout & dicoba ulang nanti.
+    if ! ensure_server || [ -z "$GATEWAY" ]; then
+        echo "GATEWAY TIDAK DITEMUKAN, skip (akan dicoba ulang)"
+        log "GATEWAY TIDAK DITEMUKAN, skip pairing"
+        return 1
+    fi
+    RESPONSE=$(curl -s --max-time 30 -X POST "$GATEWAY/api/pair" \
     -H "Content-Type: application/json" \
     --data "{\"phone\":\"$PHONE\"}")
     # log "RAW: $RESPONSE"
