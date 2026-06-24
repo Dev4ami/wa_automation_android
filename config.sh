@@ -49,6 +49,25 @@ STUCK_RESTART_AFTER=10    # detik stuck (UNKNOWN/INITIALIZING) sebelum restart W
 STUCK_MAX_RESTARTS=3      # maksimal restart WA otomatis per login
 
 # =====================
+# SERVER QUEUE (PC pusat)
+# =====================
+# Port server (samakan dgn yg dipilih saat start account_management [3]).
+SERVER_PORT=7070
+# Override manual (opsional). Isi kalau mau pin IP & skip auto-scan:
+#   SERVER_FIXED="http://192.168.0.23:7070"
+SERVER_FIXED=""
+# Hasil auto-discovery diisi runtime (scan LAN cari port terbuka). Jangan diisi.
+SERVER=""
+# Cache URL server terakhir yg ketemu (biar run berikutnya instan).
+SERVER_CACHE="$FOLDER_AKUN/.server_url"
+# ID device buat klaim/lapor (biar server tau HP mana).
+DEVICE_ID="$(getprop ro.serialno 2>/dev/null)"
+[ -z "$DEVICE_ID" ] && DEVICE_ID="$(getprop ro.boot.serialno 2>/dev/null)"
+[ -z "$DEVICE_ID" ] && DEVICE_ID="unknown_device"
+# Detik tunggu kalau antrian (MASTER) kosong / server tak respon.
+CLAIM_IDLE_WAIT=10
+
+# =====================
 # CREATE FOLDER
 # =====================
 mkdir -p \

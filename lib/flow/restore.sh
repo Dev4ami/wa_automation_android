@@ -1,12 +1,8 @@
 
 prepare_backup_file() {
-    local FILE
-    FILE=$(ls "$FOLDER_AKUN"/*.tar.gz 2>/dev/null | head -n1)
-    if [ -z "$FILE" ]; then
-        log "TIDAK ADA FILE BACKUP"
-        return 1
-    fi
-    echo "$FILE"
+    # Sumber file = server queue PC, bukan folder lokal lagi.
+    # claim_account: ambil 1 akun dari MASTER + download ke FOLDER_AKUN.
+    claim_account || return 1
 }
 
 # Deteksi package dari hasil extract di TEMP, lalu set WA_PKG + path global.
@@ -42,6 +38,7 @@ extract_phone() {
     PREF_FILE=$(find "$DIR" -path "*/$WA_PKG/shared_prefs/${WA_PKG}_preferences_light.xml" | head -n1)
     if [ -z "$PREF_FILE" ]; then
         log "FILE PREF TIDAK DITEMUKAN"
+        report_result "invalid" "" "$(basename "$FILE")"
         mv "$FILE" "$FOLDER_INVALID/"
         return 1
     fi
@@ -63,6 +60,8 @@ extract_phone() {
     fi
     if ! echo "$PHONE" | grep -qE '^62[0-9]{9,13}$'; then
         log "NOMOR TIDAK VALID: $PHONE"
+        report_result "invalid" "$PHONE" "$(basename "$FILE")"
+        mv "$FILE" "$FOLDER_INVALID/"
         return 1
     fi
 

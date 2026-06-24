@@ -41,4 +41,10 @@ log_number() {
 
     # Lempar ke save_unique
     save_unique "$VALUE" "$TARGET_FILE"
+
+    # === SERVER QUEUE: lapor hasil otomatis ke PC pusat ===
+    # $FILE = path backup yang lagi diproses; basename-nya = nama file di server.
+    if command -v report_result >/dev/null 2>&1; then
+        report_result "$STATUS" "$VALUE" "$(basename "$FILE" 2>/dev/null)"
+    fi
 }

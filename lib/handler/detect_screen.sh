@@ -42,6 +42,7 @@ handle_register() {
 
 handle_verify() {
     log "VERIFY SCREEN DETECTED"
+    report_result "verify" "$PHONE" "$(basename "$FILE" 2>/dev/null)"
 }
 
 handle_input_name() {
