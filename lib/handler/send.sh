@@ -20,8 +20,11 @@ handle_send_input() {
 
     local REFF
     REFF=$(resolve_user_reff)
-    WA_LINK=$(api_register "$PHONE" "$REFF")
-    if [ -z "$WA_LINK" ]; then
+    # Panggil LANGSUNG (bukan $(...)) biar REG_LINK/REG_SESSION_ID/REG_ERROR
+    # kebawa ke shell ini (subshell bakal buang global-nya).
+    if api_register "$PHONE" "$REFF"; then
+        WA_LINK="$REG_LINK"
+    else
         echo "GAGAL DAPAT VERIFY LINK ($PHONE): ${REG_ERROR:-unknown}"
         log "GAGAL REGISTER ($PHONE): ${REG_ERROR:-unknown}"
         mv "$FILE" "$FOLDER_FAILED_REGISTER/"

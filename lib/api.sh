@@ -5,8 +5,9 @@
 # REGISTER diturunkan dari host SERVER -> derive_register() di server.sh.
 #
 # Butuh var dari config.sh: REGISTER, USER_REFF
-# Output stdout dipakai caller (echo link/status) -> log() nulis ke file,
-# bukan stdout, jadi gak ngotori hasil capture.
+# api_register taruh hasil di GLOBAL (REG_LINK/REG_SESSION_ID/REG_ERROR/...).
+# JANGAN panggil via $(...) -> subshell bikin global hilang ke parent.
+# api_check_status balikin status lewat stdout (boleh via $(...)).
 # =====================================================================
 
 # user_reff per akun. Sekarang konstanta config.
@@ -17,13 +18,13 @@ resolve_user_reff() {
     echo "${USER_REFF:-automation}"
 }
 
-# POST /api/register {nomor,user_reff}
-# Sukses (status=success): set REG_SESSION_ID, echo wa_link, return 0
-# Gagal: return 1 (REG_SESSION_ID dikosongkan)
+# POST /api/register {nomor,user_reff}. Hasil di GLOBAL, return 0/1.
+# Sukses: REG_LINK + REG_SESSION_ID terisi, return 0.
+# Gagal : REG_ERROR berisi alasan, return 1.
+# PENTING: panggil LANGSUNG (bukan $(...)) biar global kebawa ke caller.
 api_register() {
     local NOMOR="$1" REFF="$2" RESP STATUS LINK MSG
-    # Alasan gagal ditaruh di REG_ERROR (global) biar caller bisa echo ke layar.
-    # stdout fungsi ini KHUSUS wa_link -> jangan echo error ke stdout.
+    REG_LINK=""
     REG_SESSION_ID=""
     REG_STATUS=""
     REG_MESSAGE=""
@@ -66,7 +67,8 @@ api_register() {
         return 1
     fi
     REG_SESSION_ID=$(echo "$RESP" | sed -n 's/.*"session_id":"\([^"]*\)".*/\1/p')
-    echo "$LINK"
+    REG_LINK="$LINK"
+    return 0
 }
 
 # POST /api/check_status {session_id}
