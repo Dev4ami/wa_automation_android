@@ -29,8 +29,8 @@ run_send_flow() {
             ;;
 
             HOME)
-                # chat belum kebuka, buka ulang link verifikasi
-                am start -a android.intent.action.VIEW -d "$WA_LINK" >/dev/null 2>&1
+                # chat belum kebuka, buka ulang link verifikasi (pin paket akun)
+                am start -a android.intent.action.VIEW -d "$WA_LINK" "$WA_PKG" >/dev/null 2>&1
                 sleep 3
                 continue
             ;;

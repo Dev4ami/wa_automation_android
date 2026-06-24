@@ -30,9 +30,9 @@ handle_send_input() {
     fi
     log "VERIFY LINK OK (session=$REG_SESSION_ID)"
 
-    # Buka chat WA dgn teks verif prefilled. WA umumnya handler langsung
-    # untuk api.whatsapp.com (tanpa lewat browser).
-    am start -a android.intent.action.VIEW -d "$WA_LINK" >/dev/null 2>&1
+    # Buka chat WA dgn teks verif prefilled. PIN ke paket akun ($WA_PKG)
+    # biar gak ke-arah ke WA Business kalau dua-duanya keinstall.
+    am start -a android.intent.action.VIEW -d "$WA_LINK" "$WA_PKG" >/dev/null 2>&1
     sleep 3
 }
 
