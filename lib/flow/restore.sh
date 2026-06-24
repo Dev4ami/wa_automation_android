@@ -129,6 +129,16 @@ run_restore_flow() {
 
     log "START RESTORE"
     cleanup_temp
+
+    # PENTING: resolve SERVER/GATEWAY di shell UTAMA dulu. claim_account jalan
+    # di subshell ($(...)), jadi kalau ensure_server cuma dipanggil di sana,
+    # SERVER hilang dan report_result (logout/banned/dll) gak pernah terkirim.
+    if ! ensure_server; then
+        log "SERVER QUEUE TIDAK DITEMUKAN, tunggu ${CLAIM_IDLE_WAIT}s"
+        sleep "$CLAIM_IDLE_WAIT"
+        return 1
+    fi
+
     FILE=$(prepare_backup_file) || return 1
     extract_backup "$FILE"
     detect_wa_pkg
