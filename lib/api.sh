@@ -47,9 +47,11 @@ api_register() {
     REG_MESSAGE="$MSG"
     if [ "$STATUS" != "success" ]; then
         if [ -n "$MSG" ]; then
-            REG_ERROR="status=${STATUS:-?} | $MSG"
+            # Utamakan pesan dari server apa adanya (mis. "Melebihi batas
+            # Permintaan OTP, ...").
+            REG_ERROR="$MSG"
         else
-            # status gak dikenal / JSON aneh -> tampilkan potongan respons mentah
+            # message kosong / JSON aneh -> tampilkan potongan respons mentah
             REG_ERROR="status=${STATUS:-?} | resp: $(echo "$RESP" | cut -c1-200)"
         fi
         log "REGISTER gagal: $RESP"
