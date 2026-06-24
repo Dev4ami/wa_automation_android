@@ -97,6 +97,9 @@ REGISTER_FIXED=""
 USER_REFF="automation"
 # Tunggu chat kebuka + tap kirim (detik).
 SEND_MAX_WAIT=60
+# Auto-recovery saat buka chat verif nyangkut (jamkot):
+SEND_STUCK_AFTER=10   # detik nyangkut sebelum force-stop WA + buka ulang chat
+SEND_MAX_RESTARTS=3   # maksimal restart WA per akun
 
 # --- Cek status verifikasi (poll /api/check_status pakai session_id) ---
 # on  = HP poll sampai verified/timeout, lapor hasil asli
