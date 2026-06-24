@@ -52,7 +52,8 @@ STUCK_MAX_RESTARTS=3      # maksimal restart WA otomatis per login
 # SERVER QUEUE (PC pusat)
 # =====================
 # Port server (samakan dgn yg dipilih saat start account_management [3]).
-SERVER_PORT=7070
+# Default 8787 (hindari 7070 = AnyDesk).
+SERVER_PORT=8787
 # Override manual (opsional). Isi kalau mau pin IP & skip auto-scan:
 #   SERVER_FIXED="http://192.168.0.23:7070"
 SERVER_FIXED=""
