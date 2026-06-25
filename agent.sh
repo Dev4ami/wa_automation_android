@@ -8,72 +8,54 @@ for file in $BASE_DIR/utils/*.sh; do . "$file"; done
 for file in $BASE_DIR/lib/flow/*.sh; do . "$file"; done
 for file in $BASE_DIR/lib/handler/*.sh; do . "$file"; done
 
-MODE="restore_login_action_loop"
+# Mode dari argumen: agent.sh <send_loop|pairing_loop|pairing>
+MODE="$1"
+
+if [ -z "$MODE" ]; then
+    echo "Mode wajib diisi."
+    echo "Pemakaian: agent.sh <send_loop|pairing_loop|pairing>"
+    exit 1
+fi
 
 case "$MODE" in
 
-    # Restore + login + aksi sesuai POST_LOGIN_ACTION (pairing|send|both).
-    # Sumber akun tetap dari SERVER QUEUE (claim_account), bukan per-device.
-    restore_login_action_loop)
+    # Loop: restore + login + KIRIM pesan verifikasi (api/register).
+    # Sumber akun dari SERVER QUEUE (claim_account).
+    send_loop)
         while true; do
             log "++++++++++++++++++++++++++++++++++++++++"
             rm -f "$BASE_DIR/window_dump.xml"
             purge_local_tgz
             run_restore_flow || continue
             run_login_flow   || continue
-            case "$POST_LOGIN_ACTION" in
-                pairing) run_pairing_flow || continue ;;
-                send)    run_send_flow    || continue ;;
-                both)    run_pairing_flow && run_send_flow ;;
-                *)       log "POST_LOGIN_ACTION TIDAK DIKENAL: $POST_LOGIN_ACTION" ;;
-            esac
+            run_send_flow    || continue
         done
     ;;
 
-    restore_login_pairing_wa_web)
+    # Loop: restore + login + PAIRING (linked device / WA web).
+    pairing_loop)
+        while true; do
+            log "++++++++++++++++++++++++++++++++++++++++"
+            rm -f "$BASE_DIR/window_dump.xml"
+            purge_local_tgz
+            run_restore_flow || continue
+            run_login_flow   || continue
+            run_pairing_flow || continue
+        done
+    ;;
+
+    # Sekali jalan: restore + login + pairing 1 akun.
+    pairing)
         log "++++++++++++++++++++++++++++++++++++++++"
-        rm "$BASE_DIR/window_dump.xml"
+        rm -f "$BASE_DIR/window_dump.xml"
         run_restore_flow || exit 1
-        run_login_flow || exit 1
+        run_login_flow   || exit 1
         run_pairing_flow || exit 1
     ;;
 
-    restore_login_pairing_wa_web_loop)
-        while true; do
-            log "++++++++++++++++++++++++++++++++++++++++"
-            rm "$BASE_DIR/window_dump.xml"
-            run_restore_flow || continue 1
-            run_login_flow || continue 1
-            run_pairing_flow || continue 1
-        done
-    ;;
-
-    # restore_login_register_klik_wa_web)
-    #     log "++++++++++++++++++++++++++++++++++++++++"
-    #     rm "$BASE_DIR/window_dump.xml"
-    #     run_restore_flow || exit 1
-    #     run_login_flow || exit 1
-    #     # run_register_klik_flow || exit 1
-    # ;;
-
-    # restore_login_request_review)
-    #     log "++++++++++++++++++++++++++++++++++++++++"
-    #     rm "$BASE_DIR/window_dump.xml"
-    #     run_restore_flow || exit 1
-    #     run_login_flow || exit 1
-    #     # run_request_review_flow || exit 1
-    # ;;
-
-    # restore_login_cek_wa)
-    #     log "++++++++++++++++++++++++++++++++++++++++"
-    #     rm /storage/emulated/0/window_dump.xml
-    #     run_restore_flow || exit 1
-    #     run_login_flow || exit 1
-    #     # run_request_review_flow || exit 1
-    # ;;
-
     *)
-        log "UNKNOWN MODE"
+        echo "Mode tidak dikenal: $MODE"
+        echo "Pemakaian: agent.sh <send_loop|pairing_loop|pairing>"
         exit 1
     ;;
 
