@@ -8,7 +8,7 @@ for file in $BASE_DIR/utils/*.sh; do . "$file"; done
 for file in $BASE_DIR/lib/flow/*.sh; do . "$file"; done
 for file in $BASE_DIR/lib/handler/*.sh; do . "$file"; done
 
-MODE="restore_login_pairing_wa_web_loop"
+MODE="restore_login_action_loop"
 
 case "$MODE" in
 
