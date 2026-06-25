@@ -14,7 +14,7 @@ case "$MODE" in
 
     # Restore + login + aksi sesuai POST_LOGIN_ACTION (pairing|send|both).
     # Sumber akun tetap dari SERVER QUEUE (claim_account), bukan per-device.
-    restore_login_action_loop)
+    restore_login_pairing_wa_web_loop)
         while true; do
             log "++++++++++++++++++++++++++++++++++++++++"
             rm -f "$BASE_DIR/window_dump.xml"
@@ -48,13 +48,13 @@ case "$MODE" in
         done
     ;;
 
-    restore_login_register_klik_wa_web)
-        log "++++++++++++++++++++++++++++++++++++++++"
-        rm "$BASE_DIR/window_dump.xml"
-        run_restore_flow || exit 1
-        run_login_flow || exit 1
-        # run_register_klik_flow || exit 1
-    ;;
+    # restore_login_register_klik_wa_web)
+    #     log "++++++++++++++++++++++++++++++++++++++++"
+    #     rm "$BASE_DIR/window_dump.xml"
+    #     run_restore_flow || exit 1
+    #     run_login_flow || exit 1
+    #     # run_register_klik_flow || exit 1
+    # ;;
 
     # restore_login_request_review)
     #     log "++++++++++++++++++++++++++++++++++++++++"
