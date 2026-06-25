@@ -110,7 +110,7 @@ POLL_INTERVAL=5     # jeda antar cek (detik)
 # Daftar status (dari /api/check_status) yg dianggap BERHASIL terverifikasi.
 # Sesuaikan kalau server pakai istilah lain. Status di luar ini + bukan
 # pending/timeout/error -> tetap di-poll sampai cap waktu.
-VERIFY_OK_STATUS="success"
+VERIFY_OK_STATUS="success verified"
 
 # =====================
 # CREATE FOLDER
