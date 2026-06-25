@@ -8,13 +8,13 @@ for file in $BASE_DIR/utils/*.sh; do . "$file"; done
 for file in $BASE_DIR/lib/flow/*.sh; do . "$file"; done
 for file in $BASE_DIR/lib/handler/*.sh; do . "$file"; done
 
-MODE="restore_login_action_loop"
+MODE="restore_login_pairing_wa_web"
 
 case "$MODE" in
 
     # Restore + login + aksi sesuai POST_LOGIN_ACTION (pairing|send|both).
     # Sumber akun tetap dari SERVER QUEUE (claim_account), bukan per-device.
-    restore_login_pairing_wa_web_loop)
+    restore_login_action_loop)
         while true; do
             log "++++++++++++++++++++++++++++++++++++++++"
             rm -f "$BASE_DIR/window_dump.xml"
