@@ -81,7 +81,8 @@ derive_gateway() {
 # Service ada di PC yg sama dgn queue server -> gak perlu scan/hardcode IP.
 derive_register() {
     if [ -n "$REGISTER_FIXED" ]; then
-        REGISTER="$REGISTER_FIXED"
+        # Service 4500 cuma bisa via http -> paksa https->http kalau ke-set.
+        REGISTER=$(echo "$REGISTER_FIXED" | sed -E 's#^https://#http://#')
         return 0
     fi
     local host
