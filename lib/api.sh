@@ -34,7 +34,7 @@ api_register() {
         log "REGISTER URL kosong"
         return 1
     fi
-    RESP=$(curl -s --max-time 30 -X POST "$REGISTER/api/register" \
+    RESP=$(curl -s --noproxy '*' --max-time 30 -X POST "$REGISTER/api/register" \
         -H "Content-Type: application/json" \
         --data "{\"nomor\":\"$NOMOR\",\"user_reff\":\"$REFF\"}")
     if [ -z "$RESP" ]; then
@@ -77,7 +77,7 @@ api_check_status() {
     local SID="$1" RESP
     [ -z "$SID" ] && return 1
     [ -z "$REGISTER" ] && return 1
-    RESP=$(curl -s --max-time 15 -X POST "$REGISTER/api/check_status" \
+    RESP=$(curl -s --noproxy '*' --max-time 15 -X POST "$REGISTER/api/check_status" \
         -H "Content-Type: application/json" \
         --data "{\"session_id\":\"$SID\"}")
     [ -z "$RESP" ] && return 1
