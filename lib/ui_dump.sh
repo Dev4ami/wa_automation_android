@@ -120,6 +120,23 @@ detect_screen() {
         return
     fi
 
+    # HOME (daftar chat) via XML bottom-nav. Tahan banting: sebagian device/
+    # WA non-root gak expose mResumedActivity ke shell, jadi deteksi activity
+    # gagal terus (UNKNOWN). Bottom-nav "Komunitas + Panggilan" cuma muncul di
+    # HomeActivity. Ditaruh SETELAH cek LOGOUT/BANNED biar banner logout menang.
+    if { exists_text "Komunitas" || exists_text "Communities"; } && \
+        { exists_text "Panggilan" || exists_text "Calls"; }; then
+        echo "HOME"
+        return
+    fi
+
+    # CHAT (ruang percakapan) via XML. Kotak ketik pesan (id/entry) cuma ada
+    # di ConversationActivity. Fallback kalau deteksi activity gak jalan.
+    if exists_id "$WA_PKG:id/entry"; then
+        echo "CHAT"
+        return
+    fi
+
     # ACTIVITY DATA
     if echo "$CURRENT" | grep -q "Conversation"; then
         echo "CHAT"
