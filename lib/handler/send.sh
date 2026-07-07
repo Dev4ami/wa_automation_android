@@ -75,10 +75,21 @@ _is_verify_ok() {
     return 1
 }
 
+# Force-stop WA lalu buka ulang chat: bikin socket reconnect & antrian pesan
+# ke-flush. TIDAK tap kirim (pesan sudah masuk antrian dari handle_send; kalau
+# di-tap lagi malah dobel). Niru fix manual: buang WA, buka lagi -> centang.
+kick_wa_reconnect() {
+    am force-stop "$WA_PKG"
+    sleep 2
+    am start -a android.intent.action.VIEW -d "$WA_LINK" "$WA_PKG" >/dev/null 2>&1
+    sleep 3
+}
+
 # Poll /api/check_status sampai verified / timeout / error / cap waktu.
 # return 0 = verified, 2 = timeout/belum terdaftar, 1 = error
 poll_verification() {
     local SID="$1" START NOW ST
+    local PENDING_SINCE=0 KICKS=0
     START=$(date +%s)
     while true; do
         ST=$(api_check_status "$SID")
@@ -89,6 +100,17 @@ poll_verification() {
         case "$ST" in
             ""|pending)
                 log "VERIFY PENDING ($PHONE)"
+                # Pesan mungkin nyangkut di antrian WA (clock, belum ke server).
+                # Pending kelamaan -> kick WA (reconnect + flush antrian).
+                NOW=$(date +%s)
+                [ "$PENDING_SINCE" -eq 0 ] && PENDING_SINCE=$NOW
+                if [ $((NOW - PENDING_SINCE)) -ge "${SEND_PENDING_AFTER:-10}" ] \
+                    && [ "$KICKS" -lt "${SEND_PENDING_MAX_KICKS:-3}" ]; then
+                    KICKS=$((KICKS+1))
+                    log "PENDING ${SEND_PENDING_AFTER:-10}s -> KICK WA (reconnect) #$KICKS ($PHONE)"
+                    kick_wa_reconnect
+                    PENDING_SINCE=0
+                fi
             ;;
             timeout)
                 log "VERIFY TIMEOUT-server ($PHONE)"

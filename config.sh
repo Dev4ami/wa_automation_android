@@ -107,6 +107,11 @@ SEND_MAX_RESTARTS=3   # maksimal restart WA per akun
 VERIFY_CHECK="on"
 POLL_MAX_WAIT=120   # 2 menit, samakan dgn timeout server
 POLL_INTERVAL=5     # jeda antar cek (detik)
+# Auto-flush pesan nyangkut (clock/pending) SETELAH tap kirim:
+# kalau server masih 'pending' selama SEND_PENDING_AFTER detik, force-stop WA +
+# buka ulang chat biar socket reconnect & antrian ke-flush (niru fix manual).
+SEND_PENDING_AFTER=3      # detik pending sebelum kick WA (reconnect)
+SEND_PENDING_MAX_KICKS=15  # maksimal kick per akun
 # Daftar status (dari /api/check_status) yg dianggap BERHASIL terverifikasi.
 # Sesuaikan kalau server pakai istilah lain. Status di luar ini + bukan
 # pending/timeout/error -> tetap di-poll sampai cap waktu.
