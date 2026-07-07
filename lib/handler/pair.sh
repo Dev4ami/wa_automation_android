@@ -11,7 +11,7 @@ handle_pair_input() {
     fi
     # --max-time besar: server auto-retry saat token cooldown (429). Kalau curl
     # timeout duluan, RESPONSE kosong -> ditangani sbg transient (requeue) di bawah.
-    RESPONSE=$(curl -s --noproxy '*' --max-time 120 -X POST "$GATEWAY/api/pair" \
+    RESPONSE=$(curl -s --max-time 120 -X POST "$GATEWAY/api/pair" \
     -H "Content-Type: application/json" \
     --data "{\"phone\":\"$PHONE\"}")
     # log "RAW: $RESPONSE"

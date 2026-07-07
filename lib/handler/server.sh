@@ -18,7 +18,7 @@ SERVER_PING_TOKEN="WA_QUEUE_SERVER"
 # Cek 1 URL: apakah itu server queue yg bener (bukan service lain).
 probe_server() {
     [ -z "$1" ] && return 1
-    curl -s --noproxy '*' --connect-timeout 1 --max-time 2 "$1/ping" 2>/dev/null \
+    curl -s --connect-timeout 1 --max-time 2 "$1/ping" 2>/dev/null \
         | grep -q "$SERVER_PING_TOKEN"
 }
 
@@ -140,7 +140,7 @@ claim_account() {
         return 1
     fi
 
-    RESP=$(curl -s --noproxy '*' --max-time 15 "$SERVER/claim?device=$DEVICE_ID")
+    RESP=$(curl -s --max-time 15 "$SERVER/claim?device=$DEVICE_ID")
     ST=$(echo "$RESP" | sed -n 's/.*"status":"\([^"]*\)".*/\1/p')
 
     if [ -z "$RESP" ]; then
@@ -163,7 +163,7 @@ claim_account() {
     fi
 
     DEST="$FOLDER_AKUN/$FNAME"
-    curl -s --noproxy '*' --max-time 180 "$SERVER/download/$FNAME" -o "$DEST"
+    curl -s --max-time 180 "$SERVER/download/$FNAME" -o "$DEST"
     if [ ! -s "$DEST" ]; then
         log "DOWNLOAD GAGAL/KOSONG: $FNAME"
         rm -f "$DEST"
@@ -181,7 +181,7 @@ report_result() {
     local STATUS="$1" PHONE="$2" FNAME="$3"
     [ -z "$SERVER" ] && return 0
     [ -z "$FNAME" ] && return 0
-    curl -s --noproxy '*' --max-time 10 -X POST "$SERVER/report" \
+    curl -s --max-time 10 -X POST "$SERVER/report" \
         -H "Content-Type: application/json" \
         --data "{\"device\":\"$DEVICE_ID\",\"file\":\"$FNAME\",\"phone\":\"$PHONE\",\"status\":\"$STATUS\"}" \
         >/dev/null 2>&1
