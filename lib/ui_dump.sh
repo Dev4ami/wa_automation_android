@@ -135,6 +135,15 @@ detect_screen() {
         return
     fi
 
+    # TARGET (device B): selector "Pulihkan atau transfer chat" -> LEWATI
+    # (skip_button). Relogin gak butuh restore/transfer riwayat. Deteksi via
+    # JUDUL unik karena id skip_button generik (dipakai layar lain juga).
+    if { exists_text "Pulihkan atau transfer chat" || exists_text "Restore or transfer"; } && \
+        exists_id "$WA_PKG:id/skip_button"; then
+        echo "RESTORE_TRANSFER_SELECTOR"
+        return
+    fi
+
     # Layar input nomor (device B daftar ulang).
     if exists_id "$WA_PKG:id/registration_phone"; then
         echo "INPUT_NUMBER"

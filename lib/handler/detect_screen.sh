@@ -176,6 +176,17 @@ handle_chat_theme() {
     fi
 }
 
+# Device B: selector "Pulihkan atau transfer chat" -> LEWATI (skip_button) buat
+# lewati restore/transfer riwayat. Setelahnya muncul dialog "Anda yakin?" yg
+# di-handle SKIP_RESTORE_CONFIRM (tap Lewati pemulihan).
+handle_restore_transfer_selector() {
+    log "RESTORE/TRANSFER SELECTOR (Pulihkan atau transfer chat) -> LEWATI"
+    if exists_id "$WA_PKG:id/skip_button"; then
+        tap_by_id "$WA_PKG:id/skip_button"
+        return
+    fi
+}
+
 # Device B: dialog biz->personal -> "Alihkan Sekarang" (button1). Katalog/label
 # akun bisnis hilang permanen (keputusan user: tetap lanjut).
 handle_switch_to_messenger() {

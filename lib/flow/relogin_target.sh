@@ -53,6 +53,7 @@ run_target_flow() {
             CONFIRM_NUMBER)      handle_confirm_number;       continue ;;
             CHAT_TRANSFER_OFFER) handle_chat_transfer_offer;  continue ;;
             CHAT_THEME)          handle_chat_theme;           continue ;;
+            RESTORE_TRANSFER_SELECTOR) handle_restore_transfer_selector; continue ;;
             SWITCH_TO_MESSENGER) handle_switch_to_messenger;  continue ;;
             ENTER_TRANSFER_CODE)
                 handle_enter_transfer_code || { log "GAGAL INPUT KODE TRANSFER"; return 1; }
