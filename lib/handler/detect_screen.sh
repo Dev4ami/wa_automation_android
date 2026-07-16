@@ -157,6 +157,16 @@ handle_prefill_picker() {
     fi
 }
 
+# Device B: layar "Transfer riwayat obrolan" (migrasi chat via QR). Relogin gak
+# butuh riwayat chat -> tap NANTI (chat_transfer_secondary_btn) buat lewati.
+handle_chat_transfer_offer() {
+    log "CHAT TRANSFER OFFER (Transfer riwayat obrolan) -> NANTI (lewati)"
+    if exists_id "$WA_PKG:id/chat_transfer_secondary_btn"; then
+        tap_by_id "$WA_PKG:id/chat_transfer_secondary_btn"
+        return
+    fi
+}
+
 # Device B: dialog biz->personal -> "Alihkan Sekarang" (button1). Katalog/label
 # akun bisnis hilang permanen (keputusan user: tetap lanjut).
 handle_switch_to_messenger() {

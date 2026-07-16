@@ -51,6 +51,7 @@ run_target_flow() {
             PREFILL_PICKER)      handle_prefill_picker;       continue ;;
             INPUT_NUMBER)        handle_input_number;         continue ;;
             CONFIRM_NUMBER)      handle_confirm_number;       continue ;;
+            CHAT_TRANSFER_OFFER) handle_chat_transfer_offer;  continue ;;
             SWITCH_TO_MESSENGER) handle_switch_to_messenger;  continue ;;
             ENTER_TRANSFER_CODE)
                 handle_enter_transfer_code || { log "GAGAL INPUT KODE TRANSFER"; return 1; }
@@ -82,15 +83,40 @@ run_target_flow() {
 }
 
 # Backup fresh device B setelah transfer, upload ke server FRESH/.
-# Struktur arsip = data/user/0/<pkg> (mirror yg dicari apply_restore).
+# Struktur arsip = data/user/0/<pkg> (mirror yg dicari apply_restore), tapi
+# MINIMAL: cuma isi yg sama dgn tgz master asli (sesi/login), BUKAN seluruh dir.
+#   files/{key,me,rc2} + databases/axolotl.db + shared_prefs/*
+# Media (WhatsApp Images/Video), msgstore.db, cache, logs SENGAJA dibuang:
+# tadinya bikin arsip ~27MB (nembus limit body server) & gak perlu buat restore.
 run_rebackup_flow() {
     log "RE-BACKUP device B untuk $PHONE"
-    local NEW OUT
+    local NEW OUT WA_DIR INC p
     am force-stop "$WA_PKG"
     sleep 1
+    WA_DIR="data/user/0/$WA_PKG"
+
+    # Validasi login beneran: files/key + files/me = identitas akun. Kalau salah
+    # satu hilang, WA belum login penuh -> jangan upload arsip sampah ke FRESH.
+    if [ ! -e "/$WA_DIR/files/key" ] || [ ! -e "/$WA_DIR/files/me" ]; then
+        log "RE-BACKUP GAGAL: files/key atau files/me hilang (belum login penuh)"
+        return 1
+    fi
+
     NEW="${PHONE}_$(date +%Y%m%d%H%M%S).tar.gz"
     OUT="$TEMP/$NEW"
-    tar -czf "$OUT" -C / "data/user/0/$WA_PKG" 2>/dev/null
+
+    # Kumpulkan cuma path inti yg ADA (skip yg hilang biar tar gak error).
+    INC=""
+    for p in \
+        "$WA_DIR/files/key" \
+        "$WA_DIR/files/me" \
+        "$WA_DIR/files/rc2" \
+        "$WA_DIR/databases/axolotl.db" \
+        "$WA_DIR/shared_prefs"; do
+        [ -e "/$p" ] && INC="$INC $p"
+    done
+
+    tar -czf "$OUT" -C / $INC 2>/dev/null
     if [ ! -s "$OUT" ]; then
         log "RE-BACKUP GAGAL: arsip kosong ($OUT)"
         return 1

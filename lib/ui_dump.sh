@@ -113,9 +113,19 @@ detect_screen() {
 
     # Dialog konfirmasi nomor setelah BERIKUTNYA (defensif; belum ter-capture).
     if { exists_text "Anda memasukkan nomor" || exists_text "You entered the phone number" || \
-         exists_text "nomor telepon ini benar" || exists_text "Is this the correct"; } && \
+         exists_text "nomor telepon ini benar" || exists_text "Is this the correct" || \
+         exists_text "Apakah ini nomor yang benar" || exists_text "Is this OK"; } && \
         exists_id "android:id/button1"; then
         echo "CONFIRM_NUMBER"
+        return
+    fi
+
+    # TARGET (device B): tawaran "Transfer riwayat obrolan" (migrasi chat via QR)
+    # muncul setelah konfirmasi nomor. Relogin gak butuh riwayat chat -> NANTI
+    # (chat_transfer_secondary_btn) buat lewati & lanjut verifikasi.
+    if exists_id "$WA_PKG:id/chat_transfer_secondary_btn" || \
+        exists_text "Transfer riwayat obrolan"; then
+        echo "CHAT_TRANSFER_OFFER"
         return
     fi
 
@@ -139,6 +149,7 @@ detect_screen() {
     fi
 
     if exists_text "If you previously backed up to Google storage" || \
+        exists_text "mencadangkan pesan ke penyimpanan Google" || \
         exists_id "$WA_PKG:id/chat_transfer_subtitle"; then
         echo "POPUP_BACKUP_VALIDATION"
         return
