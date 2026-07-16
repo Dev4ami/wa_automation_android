@@ -129,6 +129,12 @@ detect_screen() {
         return
     fi
 
+    # TARGET (device B): onboarding "Pilih tema obrolan" -> LEWATI (skip).
+    if exists_id "$WA_PKG:id/onboarding_chat_theme_skip_button"; then
+        echo "CHAT_THEME"
+        return
+    fi
+
     # Layar input nomor (device B daftar ulang).
     if exists_id "$WA_PKG:id/registration_phone"; then
         echo "INPUT_NUMBER"

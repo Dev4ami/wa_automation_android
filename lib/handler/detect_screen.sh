@@ -167,6 +167,15 @@ handle_chat_transfer_offer() {
     fi
 }
 
+# Device B: onboarding "Pilih tema obrolan" -> tap LEWATI (skip button).
+handle_chat_theme() {
+    log "CHAT THEME ONBOARDING -> LEWATI (skip)"
+    if exists_id "$WA_PKG:id/onboarding_chat_theme_skip_button"; then
+        tap_by_id "$WA_PKG:id/onboarding_chat_theme_skip_button"
+        return
+    fi
+}
+
 # Device B: dialog biz->personal -> "Alihkan Sekarang" (button1). Katalog/label
 # akun bisnis hilang permanen (keputusan user: tetap lanjut).
 handle_switch_to_messenger() {
