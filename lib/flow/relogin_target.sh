@@ -48,6 +48,7 @@ run_target_flow() {
                 return $?
             ;;
             WELCOME)             handle_welcome;              continue ;;
+            PREFILL_PICKER)      handle_prefill_picker;       continue ;;
             INPUT_NUMBER)        handle_input_number;         continue ;;
             CONFIRM_NUMBER)      handle_confirm_number;       continue ;;
             SWITCH_TO_MESSENGER) handle_switch_to_messenger;  continue ;;

@@ -145,6 +145,18 @@ handle_confirm_number() {
     fi
 }
 
+# Device B: dialog autofill "Lanjutkan dengan" (Google account picker) nutupin
+# field nomor. Tap Batal (button2) buat tolak saran -> balik ke input manual,
+# lalu handle_input_number isi nomor target. JANGAN Lanjut (button1): itu bakal
+# daftar nomor saran yg SALAH, bukan nomor target.
+handle_prefill_picker() {
+    log "PREFILL PICKER (Lanjutkan dengan) -> Batal"
+    if exists_id "android:id/button2"; then
+        tap_by_id "android:id/button2"
+        return
+    fi
+}
+
 # Device B: dialog biz->personal -> "Alihkan Sekarang" (button1). Katalog/label
 # akun bisnis hilang permanen (keputusan user: tetap lanjut).
 handle_switch_to_messenger() {

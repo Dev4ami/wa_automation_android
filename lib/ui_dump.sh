@@ -64,6 +64,16 @@ detect_screen() {
         return
     fi
 
+    # --- TARGET (device B): dialog autofill "Lanjutkan dengan" ---
+    # Google account picker nutupin field nomor pas register fresh. Tolak lewat
+    # Batal (android:id/button2) biar balik ke input nomor manual. HARUS dicek
+    # sebelum PHONE_PREFILL karena layar ini juga punya id prefill_hint yg sama.
+    if { exists_text "Lanjutkan dengan" || exists_text "Continue with"; } && \
+        exists_id "android:id/button2"; then
+        echo "PREFILL_PICKER"
+        return
+    fi
+
     if exists_id "$WA_PKG:id/phone_number_prefill_hint_text_view"; then
         echo "PHONE_PREFILL"
         return
