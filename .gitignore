@@ -1,0 +1,5 @@
+# runtime UI dump (regenerated tiap loop)
+window_dump.xml
+
+# capture artifacts uiautomator (selector sudah masuk ke code)
+dump_*.xml

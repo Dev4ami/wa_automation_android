@@ -15,6 +15,7 @@ FOLDER_RESTORE="$FOLDER_END/restore" # sesi & web
 FOLDER_LOG="$FOLDER_END/log" # sesi & web
 FOLDER_FAILED_PAIRING="$FOLDER_END/failed_pairing" # sesi & web
 FOLDER_FAILED_REGISTER="$FOLDER_END/failed_register" # web (verifikasi/register)
+FOLDER_RELOGIN="$FOLDER_END/relogin" # transfer relogin (device A: tgz lama ke-rotate)
 # =====================
 # RESULT FILE
 # =====================
@@ -26,6 +27,7 @@ FILE_TERDAFTAR="$FOLDER_AKUN/akun_terdaftar.txt" # web
 FILE_INVALID="$FOLDER_AKUN/nomor_tidak_valid.txt" # sesi & web
 FILE_FAILED_PAIRING="$FOLDER_AKUN/nomor_gagal_pairing.txt" # sesi & web
 FILE_FAILED_REGISTER="$FOLDER_AKUN/nomor_gagal_register.txt" # web (verifikasi)
+FILE_RELOGIN="$FOLDER_AKUN/relogin.txt" # transfer relogin (device A)
 FILE_SESSION_MAP="$FOLDER_AKUN/session_map.txt" # nomor|session_id|file (buat poll)
 
 # =====================
@@ -118,6 +120,28 @@ SEND_PENDING_MAX_KICKS=15  # maksimal kick per akun
 VERIFY_OK_STATUS="success verified"
 
 # =====================
+# TRANSFER RELOGIN (device-to-device, SIM-less)
+# =====================
+# Device A (reader): restore tgz lama -> HOME -> POST /ready -> tunggu WA pop
+# bottom-sheet kode 6-digit -> baca -> POST /code -> ke-logout (tgz lama mati).
+# Device B (target): GET /claim_target -> daftar ulang nomor -> layar kode ->
+# poll GET /code -> input -> HOME -> re-backup -> POST /upload ke FRESH/.
+#
+# Device B selalu pakai WA personal (com.whatsapp); kalau akun bisnis muncul
+# dialog "Alihkan ke Messenger" -> tap "Alihkan Sekarang" (katalog/label hilang).
+RELOGIN_WA_PKG="com.whatsapp"
+# Reader (A): total tunggu di HOME buat kode + logout sebelum nyerah (detik).
+READER_MAX_WAIT=300
+READER_POLL=2            # jeda antar dump layar A (detik)
+# Target (B): total tunggu state-machine registrasi sampai HOME (detik).
+TARGET_MAX_WAIT=300
+# Target (B): poll GET /code sampai kode siap.
+CODE_POLL_MAX_WAIT=180
+CODE_POLL_INTERVAL=3
+# Nama acak buat layar RegisterName (device B). Dipisah spasi.
+RELOGIN_NAME_POOL="Dimas Rian Aldi Bayu Reza Fajar Gilang Yoga Adit Nanda"
+
+# =====================
 # CREATE FOLDER
 # =====================
 mkdir -p \
@@ -130,4 +154,5 @@ mkdir -p \
 "$FOLDER_LOG" \
 "$TEMP" \
 "$FOLDER_FAILED_PAIRING" \
-"$FOLDER_FAILED_REGISTER"
+"$FOLDER_FAILED_REGISTER" \
+"$FOLDER_RELOGIN"

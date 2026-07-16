@@ -186,3 +186,104 @@ report_result() {
         >/dev/null 2>&1
     log "REPORT $STATUS ($FNAME) -> server"
 }
+
+# =====================================================================
+# TRANSFER RELOGIN — message bus (device A reader <-> device B target)
+# ---------------------------------------------------------------------
+# Server pairing keyed by nama file tgz LAMA (yg di-claim device A).
+# Butuh SERVER sudah ke-resolve (ensure_server). Global set: PAIR_FILE/PAIR_PHONE.
+# =====================================================================
+
+# Device A: lapor akun sudah HOME & siap jadi sumber kode. Pakai $FILE (file
+# yg di-claim) + $PHONE. state pairing -> ready.
+mark_ready() {
+    [ -z "$SERVER" ] && return 1
+    local FNAME
+    FNAME=$(basename "$FILE" 2>/dev/null)
+    [ -z "$FNAME" ] && return 1
+    curl -s --max-time 10 -X POST "$SERVER/ready" \
+        -H "Content-Type: application/json" \
+        --data "{\"file\":\"$FNAME\",\"phone\":\"$PHONE\",\"device\":\"$DEVICE_ID\"}" \
+        >/dev/null 2>&1
+    log "READY ($FNAME / $PHONE) -> server"
+}
+
+# Device B: ambil 1 akun 'ready' (pairing). Set PAIR_FILE + PAIR_PHONE.
+# return 0 kalau dapat, 1 kalau kosong/gagal (sudah tidur anti-hammer).
+claim_target() {
+    local RESP ST
+    if ! ensure_server; then
+        log "SERVER QUEUE TIDAK DITEMUKAN, tunggu ${CLAIM_IDLE_WAIT}s"
+        sleep "$CLAIM_IDLE_WAIT"
+        return 1
+    fi
+    RESP=$(curl -s --max-time 15 "$SERVER/claim_target?device=$DEVICE_ID")
+    if [ -z "$RESP" ]; then
+        log "CLAIM_TARGET: server tidak respon, tunggu ${CLAIM_IDLE_WAIT}s"
+        SERVER=""   # paksa re-discover ronde berikutnya
+        sleep "$CLAIM_IDLE_WAIT"
+        return 1
+    fi
+    ST=$(echo "$RESP" | sed -n 's/.*"status":"\([^"]*\)".*/\1/p')
+    if [ "$ST" != "ok" ]; then
+        log "CLAIM_TARGET: belum ada akun ready, tunggu ${CLAIM_IDLE_WAIT}s"
+        sleep "$CLAIM_IDLE_WAIT"
+        return 1
+    fi
+    PAIR_FILE=$(echo "$RESP" | sed -n 's/.*"file":"\([^"]*\)".*/\1/p')
+    PAIR_PHONE=$(echo "$RESP" | sed -n 's/.*"phone":"\([^"]*\)".*/\1/p')
+    if [ -z "$PAIR_FILE" ] || [ -z "$PAIR_PHONE" ]; then
+        log "CLAIM_TARGET: file/phone kosong: $RESP"
+        sleep "$CLAIM_IDLE_WAIT"
+        return 1
+    fi
+    log "CLAIM_TARGET OK: $PAIR_FILE ($PAIR_PHONE)"
+    return 0
+}
+
+# Device A: kirim kode 6-digit yg dibaca dari layar. Key = $FILE (file A).
+post_transfer_code() {
+    local CODE="$1" FNAME
+    [ -z "$SERVER" ] && return 1
+    FNAME=$(basename "$FILE" 2>/dev/null)
+    [ -z "$FNAME" ] && return 1
+    curl -s --max-time 10 -X POST "$SERVER/code" \
+        -H "Content-Type: application/json" \
+        --data "{\"file\":\"$FNAME\",\"code\":\"$CODE\",\"device\":\"$DEVICE_ID\"}" \
+        >/dev/null 2>&1
+    log "POST CODE $CODE ($FNAME) -> server"
+}
+
+# Device B: poll kode dari server (pakai PAIR_FILE). Echo kode kalau code_ready,
+# selain itu return 1 (pending/gone).
+get_transfer_code() {
+    local RESP ST
+    [ -z "$SERVER" ] && return 1
+    [ -z "$PAIR_FILE" ] && return 1
+    RESP=$(curl -s --max-time 10 "$SERVER/code?file=$PAIR_FILE")
+    [ -z "$RESP" ] && return 1
+    ST=$(echo "$RESP" | sed -n 's/.*"status":"\([^"]*\)".*/\1/p')
+    [ "$ST" != "ok" ] && return 1
+    echo "$RESP" | sed -n 's/.*"code":"\([^"]*\)".*/\1/p'
+}
+
+# Device B: upload backup baru (.tar.gz) ke server -> FRESH/. NAME = nama file
+# baru; ?pairing=PAIR_FILE biar server nandain pairing done.
+upload_fresh() {
+    local LOCAL="$1" NAME="$2" RESP ST
+    [ -z "$SERVER" ] && return 1
+    if [ ! -s "$LOCAL" ]; then
+        log "UPLOAD: file lokal kosong: $LOCAL"
+        return 1
+    fi
+    RESP=$(curl -s --max-time 180 -X POST "$SERVER/upload/$NAME?pairing=$PAIR_FILE" \
+        -H "Content-Type: application/gzip" \
+        --data-binary "@$LOCAL")
+    ST=$(echo "$RESP" | sed -n 's/.*"status":"\([^"]*\)".*/\1/p')
+    if [ "$ST" = "ok" ]; then
+        log "UPLOAD-FRESH OK: $NAME -> server FRESH/"
+        return 0
+    fi
+    log "UPLOAD-FRESH GAGAL: $RESP"
+    return 1
+}

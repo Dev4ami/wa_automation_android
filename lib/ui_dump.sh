@@ -84,6 +84,37 @@ detect_screen() {
         return
     fi
 
+    # --- TRANSFER RELOGIN: layar device B (target) ---
+    # Dialog biz->personal (akun bisnis didaftar ulang di WA personal). Dicek
+    # sebelum INPUT_NUMBER karena dialog nutupin field nomor di belakangnya.
+    if { exists_text "Alihkan ke WhatsApp Messenger" || exists_text "Switch to WhatsApp Messenger"; } && \
+        exists_id "android:id/button1"; then
+        echo "SWITCH_TO_MESSENGER"
+        return
+    fi
+
+    # Layar input kode transfer (device B). verify_wa_old_content_title = marker
+    # khusus transfer; verify_sms_code_input = field kodenya.
+    if exists_id "$WA_PKG:id/verify_wa_old_content_title" || \
+        exists_id "$WA_PKG:id/verify_sms_code_input"; then
+        echo "ENTER_TRANSFER_CODE"
+        return
+    fi
+
+    # Dialog konfirmasi nomor setelah BERIKUTNYA (defensif; belum ter-capture).
+    if { exists_text "Anda memasukkan nomor" || exists_text "You entered the phone number" || \
+         exists_text "nomor telepon ini benar" || exists_text "Is this the correct"; } && \
+        exists_id "android:id/button1"; then
+        echo "CONFIRM_NUMBER"
+        return
+    fi
+
+    # Layar input nomor (device B daftar ulang).
+    if exists_id "$WA_PKG:id/registration_phone"; then
+        echo "INPUT_NUMBER"
+        return
+    fi
+
     if exists_id  "$WA_PKG:id/initial_sync_progress"; then
         echo "SYNCING_WHATSAPP"
         return
@@ -91,7 +122,8 @@ detect_screen() {
 
     if exists_id "$WA_PKG:id/register_email_text_input" || \
         exists_id "$WA_PKG:id/register_email_text_submit" || \
-        exists_id "$WA_PKG:id/register_email_text_skip"; then
+        exists_id "$WA_PKG:id/register_email_text_skip" || \
+        exists_id "$WA_PKG:id/register_email_skip"; then
         echo "INPUT_EMAIL"
         return
     fi
@@ -117,6 +149,18 @@ detect_screen() {
         exists_text "tidak menggunakan WhatsApp" || \
         exists_text "belum menggunakan WhatsApp"; then
         echo "NOT_ON_WA"
+        return
+    fi
+
+    # --- TRANSFER RELOGIN: device A code-display bottom sheet ---
+    # Muncul sebagai bottom-sheet DI ATAS HomeActivity saat device B memulai
+    # transfer. mResumedActivity tetap HomeActivity, jadi deteksi WAJIB via
+    # id/text XML dan HARUS menang dari deteksi HOME (dicek sebelum HOME).
+    if exists_id "$WA_PKG:id/code_container" || \
+        exists_id "$WA_PKG:id/verification_code_bottom_sheet_text_layout" || \
+        exists_text "Masukkan Kode Verifikasi Ini di Telepon Baru" || \
+        exists_text "Enter this verification code on your new phone"; then
+        echo "SHOW_TRANSFER_CODE"
         return
     fi
 
@@ -240,4 +284,40 @@ tap_input_field() {
     input tap "$X" "$Y"
     sleep 0.2
     input tap "$X" "$Y"
+}
+
+
+# Baca kode transfer 6-digit dari layar device A (SHOW_TRANSFER_CODE).
+# Tiap digit = TextView 1 karakter dengan resource-id KOSONG di dalam
+# code_container. Home di belakang bottom-sheet bisa punya badge angka
+# (jumlah chat belum dibaca), jadi kita sekat pakai y-band code_container
+# lalu urutkan digit by X. Echo 6 digit (atau kosong kalau bukan 6).
+read_transfer_code() {
+    local BAND Y1 Y2 CODE
+    BAND=$(grep -oE "resource-id=\"$WA_PKG:id/code_container\"[^>]*bounds=\"\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]\"" "$UI_XML" \
+        | head -n1 | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"')
+    [ -z "$BAND" ] && BAND=$(grep -oE "resource-id=\"$WA_PKG:id/verification_code_bottom_sheet_text_layout\"[^>]*bounds=\"\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]\"" "$UI_XML" \
+        | head -n1 | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"')
+    if [ -n "$BAND" ]; then
+        Y1=$(echo "$BAND" | sed -E 's/.*\[[0-9]+,([0-9]+)\]\[[0-9]+,[0-9]+\]".*/\1/')
+        Y2=$(echo "$BAND" | sed -E 's/.*\[[0-9]+,[0-9]+\]\[[0-9]+,([0-9]+)\]".*/\1/')
+    else
+        Y1=0; Y2=999999
+    fi
+
+    CODE=$(tr '>' '\n' < "$UI_XML" \
+        | grep -oE 'text="[0-9]".*bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' \
+        | sed -E 's/text="([0-9])".*bounds="\[([0-9]+),([0-9]+)\]\[[0-9]+,([0-9]+)\]"/\2 \3 \4 \1/' \
+        | while read -r X YT YB D; do
+              YC=$(( (YT + YB) / 2 ))
+              if [ "$YC" -ge "$Y1" ] && [ "$YC" -le "$Y2" ]; then
+                  echo "$X $D"
+              fi
+          done \
+        | sort -n | awk '{printf "%s",$2}')
+
+    # Hanya valid kalau tepat 6 digit.
+    if echo "$CODE" | grep -qE '^[0-9]{6}$'; then
+        echo "$CODE"
+    fi
 }
