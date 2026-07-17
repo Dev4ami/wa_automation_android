@@ -70,6 +70,12 @@ run_target_flow() {
                 log "DEVICE B BANNED saat register $PHONE"
                 return 1
             ;;
+            NOT_OFFICIAL)
+                # Akun ke-flag klien tidak resmi -> filter (server pindah master
+                # ke DONE/unofficial + stop requeue loop). Lanjut akun berikut.
+                report_pairing_unofficial
+                return 1
+            ;;
             *)
                 log "TARGET MENUNGGU REDIRECT... ($STATE)"
             ;;

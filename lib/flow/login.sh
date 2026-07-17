@@ -47,6 +47,10 @@ run_login_flow() {
                 handle_banned
                 return 1
             ;;
+            NOT_OFFICIAL)
+                handle_not_official
+                return 1
+            ;;
             LOGOUT)
                 handle_logout
                 return 1

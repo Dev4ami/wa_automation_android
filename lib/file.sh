@@ -38,6 +38,7 @@ log_number() {
         failed_pairing) TARGET_FILE="$FILE_FAILED_PAIRING" ;;
         failed_register) TARGET_FILE="$FILE_FAILED_REGISTER" ;;
         relogin) TARGET_FILE="$FILE_RELOGIN" ;;
+        unofficial) TARGET_FILE="$FILE_UNOFFICIAL" ;;
         *) return ;;
     esac
 

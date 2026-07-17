@@ -16,6 +16,7 @@ FOLDER_LOG="$FOLDER_END/log" # sesi & web
 FOLDER_FAILED_PAIRING="$FOLDER_END/failed_pairing" # sesi & web
 FOLDER_FAILED_REGISTER="$FOLDER_END/failed_register" # web (verifikasi/register)
 FOLDER_RELOGIN="$FOLDER_END/relogin" # transfer relogin (device A: tgz lama ke-rotate)
+FOLDER_UNOFFICIAL="$FOLDER_END/unofficial" # akun ke-flag "klien tidak resmi" (di-filter)
 # =====================
 # RESULT FILE
 # =====================
@@ -28,6 +29,7 @@ FILE_INVALID="$FOLDER_AKUN/nomor_tidak_valid.txt" # sesi & web
 FILE_FAILED_PAIRING="$FOLDER_AKUN/nomor_gagal_pairing.txt" # sesi & web
 FILE_FAILED_REGISTER="$FOLDER_AKUN/nomor_gagal_register.txt" # web (verifikasi)
 FILE_RELOGIN="$FOLDER_AKUN/relogin.txt" # transfer relogin (device A)
+FILE_UNOFFICIAL="$FOLDER_AKUN/unofficial.txt" # akun ke-flag klien tidak resmi
 FILE_SESSION_MAP="$FOLDER_AKUN/session_map.txt" # nomor|session_id|file (buat poll)
 
 # =====================
@@ -158,4 +160,5 @@ mkdir -p \
 "$TEMP" \
 "$FOLDER_FAILED_PAIRING" \
 "$FOLDER_FAILED_REGISTER" \
-"$FOLDER_RELOGIN"
+"$FOLDER_RELOGIN" \
+"$FOLDER_UNOFFICIAL"

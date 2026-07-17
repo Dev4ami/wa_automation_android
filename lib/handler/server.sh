@@ -287,3 +287,18 @@ upload_fresh() {
     log "UPLOAD-FRESH GAGAL: $RESP"
     return 1
 }
+
+# Device B (target): akun transfer ke-flag "klien tidak resmi" (registration
+# block). Target GAK BISA /report (master dipegang reader = ownership nolak),
+# jadi pakai /pairing_fail: server pindahin master QUEUE -> DONE/unofficial +
+# drop pairing biar reader nyerah & sweeper gak requeue (stop loop akun busuk).
+report_pairing_unofficial() {
+    log "TARGET NOT OFFICIAL -> filter akun ($PAIR_PHONE)"
+    [ -z "$SERVER" ] && return 0
+    [ -z "$PAIR_FILE" ] && return 0
+    curl -s --max-time 10 -X POST "$SERVER/pairing_fail" \
+        -H "Content-Type: application/json" \
+        --data "{\"file\":\"$PAIR_FILE\",\"phone\":\"$PAIR_PHONE\",\"device\":\"$DEVICE_ID\",\"reason\":\"unofficial\"}" \
+        >/dev/null 2>&1
+    log "REPORT pairing_fail unofficial ($PAIR_FILE) -> server"
+}

@@ -24,6 +24,17 @@ detect_screen() {
 
     CURRENT=$(dumpsys activity activities | grep mResumedActivity | awk '{print $4}')
     
+    # Layar "Unduh WhatsApp resmi untuk melanjutkan" (custom registration block):
+    # WA nolak akun ini di klien non-resmi. Bukan versi/APK (akun lain di device
+    # sama lolos) tapi akunnya ke-flag -> akun busuk, harus di-filter. Deteksi via
+    # resource-id spesifik (locale-independent). WAJIB sebelum BANNED/HOME.
+    if exists_id "$WA_PKG:id/custom_registration_block_screen_body" || \
+        exists_id "$WA_PKG:id/custom_registration_block_screen_title_toolbar" || \
+        exists_text "Unduh WhatsApp resmi untuk melanjutkan"; then
+        echo "NOT_OFFICIAL"
+        return
+    fi
+
     # XML DATA
     if exists_id "$WA_PKG:id/ban_info" || \
         exists_id "$WA_PKG:id/ban_info_text_layout" || \

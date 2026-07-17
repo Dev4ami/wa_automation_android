@@ -79,6 +79,16 @@ handle_banned() {
     log_number "banned" "$PHONE"
 }
 
+# Reader (login flow) ketemu layar "klien tidak resmi" saat restore akun busuk.
+# $FILE = master tgz yg di-claim reader (reader OWNER) -> log_number auto-report
+# "unofficial" ke server -> master QUEUE -> DONE/unofficial (keluar antrian).
+handle_not_official() {
+    log "NOT OFFICIAL (registration block) SCREEN"
+    echo "ACCOUNT NOT OFFICIAL"
+    mv "$FILE" "$FOLDER_UNOFFICIAL/" 2>/dev/null
+    log_number "unofficial" "$PHONE"
+}
+
 handle_logout() {
     log "LOGOUT SCREEN DETECTED"
     echo "ACCOUNT LOGGED OUT"
