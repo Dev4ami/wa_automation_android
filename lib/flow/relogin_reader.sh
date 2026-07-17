@@ -16,9 +16,19 @@ run_reader_flow() {
     # Sudah di HOME. Tandai akun ini siap jadi sumber kode buat device B.
     mark_ready
 
-    local START NOW STATE
+    local START NOW STATE POLL_N
     START=$(date +%s)
+    POLL_N=0
     while true; do
+        # Early-bail: target lapor akun ke-filter unofficial (/pairing_fail) ->
+        # pairing 'gone' di server. Reader gak usah nunggu kode sampai
+        # READER_MAX_WAIT (300s). Cek berkala (~tiap 3 loop) biar hemat HTTP.
+        POLL_N=$((POLL_N + 1))
+        if [ $((POLL_N % 3)) -eq 0 ] && pairing_gone; then
+            log "READER BAIL: pairing gone (akun ke-filter unofficial di target)"
+            return 1
+        fi
+
         if ! update_ui; then
             log "UI NOT READY, RETRY..."
             sleep "${READER_POLL:-2}"

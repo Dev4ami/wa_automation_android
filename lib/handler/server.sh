@@ -254,6 +254,20 @@ post_transfer_code() {
     log "POST CODE $CODE ($FNAME) -> server"
 }
 
+# Device A: cek apakah pairing untuk $FILE sudah LENYAP di server (status 'gone').
+# Terjadi kalau target lapor /pairing_fail (akun ke-filter unofficial) atau pairing
+# basi ke-prune. return 0 = gone -> reader gak perlu nunggu kode, bisa nyerah cepat.
+pairing_gone() {
+    local RESP ST FNAME
+    [ -z "$SERVER" ] && return 1
+    FNAME=$(basename "$FILE" 2>/dev/null)
+    [ -z "$FNAME" ] && return 1
+    RESP=$(curl -s --max-time 8 "$SERVER/code?file=$FNAME")
+    [ -z "$RESP" ] && return 1
+    ST=$(echo "$RESP" | sed -n 's/.*"status":"\([^"]*\)".*/\1/p')
+    [ "$ST" = "gone" ]
+}
+
 # Device B: poll kode dari server (pakai PAIR_FILE). Echo kode kalau code_ready,
 # selain itu return 1 (pending/gone).
 get_transfer_code() {
