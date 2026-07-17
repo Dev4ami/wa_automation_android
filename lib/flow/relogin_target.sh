@@ -9,6 +9,43 @@
 # "Alihkan ke Messenger" ditap "Alihkan Sekarang" (katalog/label hilang).
 # =====================================================================
 
+# Re-grant izin runtime WA setelah pm clear (pm clear reset izin -> onboarding
+# bisa nyangkut di dialog izin yg flow gak handle). Yg gak grantable di-skip.
+grant_whatsapp_permissions() {
+    local p
+    for p in \
+        android.permission.READ_CONTACTS \
+        android.permission.WRITE_CONTACTS \
+        android.permission.GET_ACCOUNTS \
+        android.permission.READ_PHONE_STATE \
+        android.permission.READ_PHONE_NUMBERS \
+        android.permission.CALL_PHONE \
+        android.permission.CAMERA \
+        android.permission.RECORD_AUDIO \
+        android.permission.POST_NOTIFICATIONS \
+        android.permission.ACCESS_FINE_LOCATION \
+        android.permission.ACCESS_COARSE_LOCATION \
+        android.permission.READ_EXTERNAL_STORAGE \
+        android.permission.WRITE_EXTERNAL_STORAGE; do
+        pm grant "$WA_PKG" "$p" 2>/dev/null
+    done
+}
+
+# Reset data WA device B sebelum daftar ulang. Mode via TARGET_CLEAR_MODE:
+#   pm_clear  = pm clear penuh (reset total) + re-grant izin. Paling bersih.
+#   selective = rm -rf subdir inti (default lama; izin tetap, lebih cepat).
+reset_whatsapp_target() {
+    if [ "${TARGET_CLEAR_MODE:-selective}" = "pm_clear" ]; then
+        log "RESET via pm clear ($WA_PKG)"
+        pm clear "$WA_PKG" >/dev/null 2>&1
+        grant_whatsapp_permissions
+    else
+        log "RESET via selective rm ($WA_PKG)"
+        clear_whatsapp_data
+        clear_whatsapp_data_symlink
+    fi
+}
+
 run_target_flow() {
     echo "START TARGET (device B)"
     log "START TARGET FLOW"
@@ -27,8 +64,7 @@ run_target_flow() {
     # 2. Reset data WA -> tampil Welcome (fresh register).
     log "RESET WHATSAPP DATA (device B) untuk $PHONE"
     am force-stop "$WA_PKG"
-    clear_whatsapp_data
-    clear_whatsapp_data_symlink
+    reset_whatsapp_target
     am start -n "$WA_PKG/com.whatsapp.Main" >/dev/null 2>&1
     sleep 2
 

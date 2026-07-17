@@ -140,6 +140,12 @@ TARGET_MAX_WAIT=300
 # Target (B): tunggu files/key + files/me ke-flush setelah HOME sebelum backup.
 # Transfer login nulis identity asinkron; force-stop dini bikin key/me hilang.
 REBACKUP_LOGIN_WAIT=40
+# Target (B): cara reset data WA sebelum daftar ulang.
+#   pm_clear  = pm clear penuh + re-grant izin (paling bersih; rule-out residu).
+#   selective = rm -rf subdir inti (lama; lebih cepat, izin tetap).
+# Catatan: block "Login tidak tersedia"/"unofficial" itu anti-abuse device/IP,
+# kemungkinan besar TETAP muncul walau pm clear -> ini buat mbuktiin bukan residu.
+TARGET_CLEAR_MODE="pm_clear"
 # Target (B): poll GET /code sampai kode siap.
 CODE_POLL_MAX_WAIT=180
 CODE_POLL_INTERVAL=3
