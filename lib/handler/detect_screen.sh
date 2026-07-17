@@ -213,6 +213,16 @@ handle_enter_transfer_code() {
     log "ENTER TRANSFER CODE SCREEN DETECTED (device B)"
     local WAIT=0 CODE="" STEP="${CODE_POLL_INTERVAL:-3}"
     while [ "$WAIT" -lt "${CODE_POLL_MAX_WAIT:-180}" ]; do
+        # Registration block ("Unduh WhatsApp resmi" / "Login tidak tersedia")
+        # bisa muncul SAAT nunggu kode. Handler ini cuma poll server, gak liat
+        # layar -> tanpa cek ini bakal nunggu 180s sia-sia lalu GAGAL tanpa filter.
+        # Kalau block ke-detect: bail (return 0) -> main loop detect_screen bakal
+        # klasifikasi NOT_OFFICIAL -> report_pairing_unofficial -> akun ke-filter.
+        if update_ui && { exists_id "$WA_PKG:id/custom_registration_block_screen_body" || \
+             exists_id "$WA_PKG:id/custom_registration_block_screen_title_toolbar"; }; then
+            log "REGISTRATION BLOCK muncul saat nunggu kode -> bail ke main loop"
+            return 0
+        fi
         CODE=$(get_transfer_code)
         if echo "$CODE" | grep -qE '^[0-9]{6}$'; then
             log "GOT TRANSFER CODE FROM SERVER: $CODE"
