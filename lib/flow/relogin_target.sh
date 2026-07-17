@@ -95,24 +95,25 @@ run_rebackup_flow() {
     local NEW OUT WA_DIR INC p WAIT
     WA_DIR="data/user/0/$WA_PKG"
 
-    # Transfer login nulis identity (files/key + files/me) ASINKRON: HOME muncul
-    # duluan, sinkronisasi transfer masih jalan. Kalau force-stop langsung, WA
-    # kepotong sebelum flush -> key/me hilang -> arsip sampah. Tunggu muncul dulu.
+    # Bukti login akun TRANSFER: files/me (nomor) + databases/axolotl.db (identity
+    # keypair). files/key itu LEGACY & TIDAK dibuat device-to-device transfer login
+    # (cuma ada di akun master hasil register SMS lama) -> JANGAN dipersyaratkan.
+    # me/axolotl.db bisa nongol async setelah HOME -> tunggu dulu sebelum force-stop.
     WAIT=0
-    while [ ! -e "/$WA_DIR/files/key" ] || [ ! -e "/$WA_DIR/files/me" ]; do
+    while [ ! -e "/$WA_DIR/files/me" ] || [ ! -e "/$WA_DIR/databases/axolotl.db" ]; do
         if [ "$WAIT" -ge "${REBACKUP_LOGIN_WAIT:-40}" ]; then break; fi
         sleep 2
         WAIT=$((WAIT + 2))
     done
-    log "RE-BACKUP: identity check setelah ${WAIT}s (key/me)"
+    log "RE-BACKUP: identity check setelah ${WAIT}s (me/axolotl.db)"
 
     am force-stop "$WA_PKG"
     sleep 1
 
-    # Validasi login beneran: files/key + files/me = identitas akun. Kalau salah
-    # satu hilang, WA belum login penuh -> jangan upload arsip sampah ke FRESH.
-    if [ ! -e "/$WA_DIR/files/key" ] || [ ! -e "/$WA_DIR/files/me" ]; then
-        log "RE-BACKUP GAGAL: key/me hilang stlh ${WAIT}s. Ada: $(ls "/$WA_DIR/files/" 2>/dev/null | tr '\n' ',')"
+    # Validasi login beneran: files/me + axolotl.db = akun ready. Kalau salah satu
+    # hilang, WA belum login penuh -> jangan upload arsip sampah ke FRESH.
+    if [ ! -e "/$WA_DIR/files/me" ] || [ ! -e "/$WA_DIR/databases/axolotl.db" ]; then
+        log "RE-BACKUP GAGAL: me/axolotl.db hilang stlh ${WAIT}s. Ada: $(ls "/$WA_DIR/files/" 2>/dev/null | tr '\n' ',')"
         return 1
     fi
 
@@ -120,11 +121,14 @@ run_rebackup_flow() {
     OUT="$TEMP/$NEW"
 
     # Kumpulkan cuma path inti yg ADA (skip yg hilang biar tar gak error).
+    # files/e2e = kunci signal (identitas transfer). files/key masih di-include
+    # kalau kebetulan ada (akun master), tapi transfer login gak punya -> aman skip.
     INC=""
     for p in \
         "$WA_DIR/files/key" \
         "$WA_DIR/files/me" \
         "$WA_DIR/files/rc2" \
+        "$WA_DIR/files/e2e" \
         "$WA_DIR/databases/axolotl.db" \
         "$WA_DIR/shared_prefs"; do
         [ -e "/$p" ] && INC="$INC $p"
