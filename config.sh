@@ -135,6 +135,9 @@ READER_MAX_WAIT=300
 READER_POLL=2            # jeda antar dump layar A (detik)
 # Target (B): total tunggu state-machine registrasi sampai HOME (detik).
 TARGET_MAX_WAIT=300
+# Target (B): tunggu files/key + files/me ke-flush setelah HOME sebelum backup.
+# Transfer login nulis identity asinkron; force-stop dini bikin key/me hilang.
+REBACKUP_LOGIN_WAIT=40
 # Target (B): poll GET /code sampai kode siap.
 CODE_POLL_MAX_WAIT=180
 CODE_POLL_INTERVAL=3

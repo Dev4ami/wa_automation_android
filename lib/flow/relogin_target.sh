@@ -92,15 +92,27 @@ run_target_flow() {
 # tadinya bikin arsip ~27MB (nembus limit body server) & gak perlu buat restore.
 run_rebackup_flow() {
     log "RE-BACKUP device B untuk $PHONE"
-    local NEW OUT WA_DIR INC p
+    local NEW OUT WA_DIR INC p WAIT
+    WA_DIR="data/user/0/$WA_PKG"
+
+    # Transfer login nulis identity (files/key + files/me) ASINKRON: HOME muncul
+    # duluan, sinkronisasi transfer masih jalan. Kalau force-stop langsung, WA
+    # kepotong sebelum flush -> key/me hilang -> arsip sampah. Tunggu muncul dulu.
+    WAIT=0
+    while [ ! -e "/$WA_DIR/files/key" ] || [ ! -e "/$WA_DIR/files/me" ]; do
+        if [ "$WAIT" -ge "${REBACKUP_LOGIN_WAIT:-40}" ]; then break; fi
+        sleep 2
+        WAIT=$((WAIT + 2))
+    done
+    log "RE-BACKUP: identity check setelah ${WAIT}s (key/me)"
+
     am force-stop "$WA_PKG"
     sleep 1
-    WA_DIR="data/user/0/$WA_PKG"
 
     # Validasi login beneran: files/key + files/me = identitas akun. Kalau salah
     # satu hilang, WA belum login penuh -> jangan upload arsip sampah ke FRESH.
     if [ ! -e "/$WA_DIR/files/key" ] || [ ! -e "/$WA_DIR/files/me" ]; then
-        log "RE-BACKUP GAGAL: files/key atau files/me hilang (belum login penuh)"
+        log "RE-BACKUP GAGAL: key/me hilang stlh ${WAIT}s. Ada: $(ls "/$WA_DIR/files/" 2>/dev/null | tr '\n' ',')"
         return 1
     fi
 
