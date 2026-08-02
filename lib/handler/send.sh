@@ -24,6 +24,9 @@ handle_send_input() {
     # kebawa ke shell ini (subshell bakal buang global-nya).
     if api_register "$PHONE" "$REFF"; then
         WA_LINK="$REG_LINK"
+        # Tambah 2 spasi (encoded %20) di awal teks verifikasi.
+        # Ganti text= -> text=%20%20 = 2 spasi di depan teks.
+        WA_LINK="${WA_LINK/text=/text=%20%20}"
     else
         echo "GAGAL DAPAT VERIFY LINK ($PHONE): ${REG_ERROR:-unknown}"
         log "GAGAL REGISTER ($PHONE): ${REG_ERROR:-unknown}"
