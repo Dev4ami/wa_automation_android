@@ -12,6 +12,8 @@ mkdir -p "$SCRIPT_DIR/.shortcuts"
 cp wa_automation_android/shortcuts/*.sh "$SCRIPT_DIR/.shortcuts/"
 chmod +x "$SCRIPT_DIR/.shortcuts/"*.sh
 rm -f "$SCRIPT_DIR/.shortcuts/run.sh"
+echo "Memasang sqlite3 (buat mode listen_ag)..."
+pkg install -y sqlite
 echo "Update selesai!"
 sleep 3
 exit 0

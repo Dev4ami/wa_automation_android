@@ -31,6 +31,8 @@ FILE_FAILED_REGISTER="$FOLDER_AKUN/nomor_gagal_register.txt" # web (verifikasi)
 FILE_RELOGIN="$FOLDER_AKUN/relogin.txt" # transfer relogin (device A)
 FILE_UNOFFICIAL="$FOLDER_AKUN/unofficial.txt" # akun ke-flag klien tidak resmi
 FILE_SESSION_MAP="$FOLDER_AKUN/session_map.txt" # nomor|session_id|file (buat poll)
+FILE_ALFAGIFT_SUCCESS="$FOLDER_AKUN/alfagift_success.txt" # OTP autonomous (listen_ag) sukses
+FILE_ALFAGIFT_TERDAFTAR="$FOLDER_AKUN/alfagift_terdaftar.txt" # akun sudah terdaftar (diminta sandi)
 
 # =====================
 # ACTIVITY LOG
@@ -120,6 +122,23 @@ SEND_PENDING_MAX_KICKS=15  # maksimal kick per akun
 # Sesuaikan kalau server pakai istilah lain. Status di luar ini + bukan
 # pending/timeout/error -> tetap di-poll sampai cap waktu.
 VERIFY_OK_STATUS="success verified"
+
+# =====================
+# OTP AGENT (listen_ag) — request+submit OTP langsung ke service (:8757)
+# =====================
+# Mode 'listen_ag': setelah HOME, agent MINTA OTP sendiri (POST /get_otp nomor=
+# PHONE) ke service OTP, tunggu OTP masuk di msgstore.db, ekstrak 6-digit, lalu
+# SUBMIT (POST /set_otp). BYPASS wa-monitor. Host service = host SERVER (PC sama),
+# diturunkan otomatis -> OTP_BASE (port OTP_PORT). Override manual: OTP_BASE_FIXED.
+OTP_PORT=8757
+OTP_BASE=""                                # runtime (derive_otp); jangan diisi
+OTP_BASE_FIXED=""                          # override: "http://192.168.0.100:8757"
+OTP_AG_MAX_WAIT=120                        # detik tunggu OTP masuk sebelum nyerah
+OTP_AG_POLL=3                              # detik antar poll DB
+OTP_AG_STATUS_SUCCESS="alfagift_success"   # status report saat OTP verified
+# get_otp balas 200 tapi minta kata sandi = akun SUDAH TERDAFTAR (bukan gagal).
+# Report status ini -> server pindah ke DONE/alfagift_terdaftar.
+OTP_AG_STATUS_TERDAFTAR="alfagift_terdaftar"
 
 # =====================
 # TRANSFER RELOGIN (device-to-device, SIM-less)

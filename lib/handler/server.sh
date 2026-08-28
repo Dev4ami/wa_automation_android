@@ -90,11 +90,25 @@ derive_register() {
     REGISTER="http://${host}:${REGISTER_PORT}"
 }
 
+# Turunkan OTP_BASE (service OTP autonomous listen_ag, port OTP_PORT) dari host
+# SERVER. Pola sama derive_register. OTP_BASE_FIXED override (subdomain/LAN IP).
+derive_otp() {
+    if [ -n "$OTP_BASE_FIXED" ]; then
+        OTP_BASE="$OTP_BASE_FIXED"
+        return 0
+    fi
+    local host
+    host=$(echo "$SERVER" | sed -E 's#^https?://([^:/]+).*#\1#')
+    [ -z "$host" ] && return 1
+    OTP_BASE="http://${host}:${OTP_PORT}"
+}
+
 # Pastikan SERVER + GATEWAY + REGISTER terisi & valid.
 ensure_server() {
     _locate_server || return 1
     derive_gateway
     derive_register
+    derive_otp
     return 0
 }
 
@@ -315,4 +329,81 @@ report_pairing_unofficial() {
         --data "{\"file\":\"$PAIR_FILE\",\"phone\":\"$PAIR_PHONE\",\"device\":\"$DEVICE_ID\",\"reason\":\"unofficial\"}" \
         >/dev/null 2>&1
     log "REPORT pairing_fail unofficial ($PAIR_FILE) -> server"
+}
+
+# =====================================================================
+# OTP AUTONOMOUS (listen_ag) — request+submit OTP langsung ke service :8757
+# ---------------------------------------------------------------------
+# OTP_BASE di-resolve ensure_server (derive_otp). BYPASS wa-monitor.
+# Dipanggil dari lib/flow/listen_ag.sh.
+# =====================================================================
+
+# Minta OTP buat 1 nomor: POST /get_otp {nomor}. SUKSES: echo `id` (uuid sesi),
+# return 0. GAGAL: echo pesan service (buat ditampilkan pemanggil), return 1.
+# $1 = nomor (62...).
+#
+# PENTING: deteksi success pakai `grep -E` (bukan sed `\(true\|false\)`) — pola
+# alternation `\|` itu ekstensi GNU sed, TIDAK jalan di toybox sed (Android/HP)
+# -> dulu success:true ke-baca gagal walau service balas 200 OK.
+otp_get() {
+    local NOMOR="$1" RESP ID MSG
+    [ -z "$OTP_BASE" ] && { echo "OTP_BASE kosong (ensure_server gagal?)"; return 1; }
+    [ -z "$NOMOR" ] && { echo "nomor kosong"; return 1; }
+    RESP=$(curl -s --max-time 15 -X POST "$OTP_BASE/get_otp" \
+        -H "Content-Type: application/json" \
+        --data "{\"nomor\":\"$NOMOR\"}")
+    if [ -z "$RESP" ]; then
+        log "OTP_GET: service tidak respon ($OTP_BASE)"
+        echo "service OTP tidak respon"
+        return 1
+    fi
+    if printf '%s' "$RESP" | grep -qE '"success"[[:space:]]*:[[:space:]]*true'; then
+        ID=$(printf '%s' "$RESP" | sed -n 's/.*"id":"\([^"]*\)".*/\1/p')
+        if [ -z "$ID" ]; then
+            log "OTP_GET: id kosong: $RESP"
+            echo "id sesi kosong dari service"
+            return 1
+        fi
+        log "OTP_GET OK ($NOMOR) id=$ID"
+        echo "$ID"
+        return 0
+    fi
+    # Gagal: ambil "message" (JSON) atau body mentah (non-JSON, mis. 500 plain-text).
+    MSG=$(printf '%s' "$RESP" | sed -n 's/.*"message":"\([^"]*\)".*/\1/p')
+    [ -z "$MSG" ] && MSG=$(printf '%s' "$RESP" | tr '\n' ' ' | cut -c1-160)
+    log "OTP_GET GAGAL: $RESP"
+    echo "$MSG"
+    return 1
+}
+
+# Submit OTP: POST /set_otp {id, otp}. otp dikirim INTEGER (sesuai API; leading
+# zero hilang). SUKSES: return 0. GAGAL: echo pesan-error service (buat ditampilkan
+# pemanggil), return 1. $1 = id sesi, $2 = kode (digit).
+otp_set() {
+    local ID="$1" CODE="$2" RESP NUM MSG
+    [ -z "$OTP_BASE" ] && { echo "OTP_BASE kosong"; return 1; }
+    [ -z "$ID" ] || [ -z "$CODE" ] && { echo "id/kode kosong"; return 1; }
+    # Kirim sbg INTEGER base-10 (10# cegah tafsir oktal + JSON invalid dari leading
+    # zero, mis. "otp":012345). Konsisten dgn wa-monitor (code.parse::<i64>).
+    NUM=$((10#$CODE))
+    RESP=$(curl -s --max-time 15 -X POST "$OTP_BASE/set_otp" \
+        -H "Content-Type: application/json" \
+        --data "{\"id\":\"$ID\",\"otp\":$NUM}")
+    if [ -z "$RESP" ]; then
+        log "OTP_SET: service tidak respon ($OTP_BASE)"
+        echo "service OTP tidak respon"
+        return 1
+    fi
+    # Deteksi success:true pakai grep -E (bukan sed \|, ekstensi GNU yg mati di
+    # toybox sed HP). Lihat catatan di otp_get.
+    if printf '%s' "$RESP" | grep -qE '"success"[[:space:]]*:[[:space:]]*true'; then
+        log "OTP_SET OK (id=$ID otp=$CODE): $RESP"
+        return 0
+    fi
+    # Gagal: ambil "message" (JSON) atau body mentah (non-JSON, mis. 500 plain-text).
+    MSG=$(printf '%s' "$RESP" | sed -n 's/.*"message":"\([^"]*\)".*/\1/p')
+    [ -z "$MSG" ] && MSG=$(printf '%s' "$RESP" | tr '\n' ' ' | cut -c1-160)
+    log "OTP_SET GAGAL (id=$ID otp=$CODE): $RESP"
+    echo "$MSG"
+    return 1
 }

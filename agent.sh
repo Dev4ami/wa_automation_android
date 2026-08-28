@@ -13,7 +13,7 @@ MODE="$1"
 
 if [ -z "$MODE" ]; then
     echo "Mode wajib diisi."
-    echo "Pemakaian: agent.sh <send_loop|pairing_loop|pairing|relogin_reader|relogin_target>"
+    echo "Pemakaian: agent.sh <send_loop|pairing_loop|pairing|listen_ag_loop|listen_ag|relogin_reader|relogin_target>"
     exit 1
 fi
 
@@ -53,6 +53,28 @@ case "$MODE" in
         run_pairing_flow || exit 1
     ;;
 
+    # Loop: restore + login sampai HOME, lalu OTP AUTONOMOUS (listen_ag).
+    listen_ag_loop)
+        while true; do
+            log "++++++++++++++++++++++++++++++++++++++++"
+            rm -f "$BASE_DIR/window_dump.xml"
+            purge_local_tgz
+            run_restore_flow   || continue
+            run_login_flow     || continue
+            run_listen_ag_flow || continue
+        done
+    ;;
+
+    # Sekali jalan: restore + login sampai HOME, lalu OTP autonomous 1 akun.
+    listen_ag)
+        log "++++++++++++++++++++++++++++++++++++++++"
+        rm -f "$BASE_DIR/window_dump.xml"
+        purge_local_tgz
+        run_restore_flow   || exit 1
+        run_login_flow     || exit 1
+        run_listen_ag_flow || exit 1
+    ;;
+
     # TRANSFER RELOGIN — DEVICE A (reader): restore tgz lama + login sampai HOME,
     # lalu jadi sumber kode transfer buat device B. Akun ke-logout = tgz lama mati.
     relogin_reader)
@@ -78,7 +100,7 @@ case "$MODE" in
 
     *)
         echo "Mode tidak dikenal: $MODE"
-        echo "Pemakaian: agent.sh <send_loop|pairing_loop|pairing|relogin_reader|relogin_target>"
+        echo "Pemakaian: agent.sh <send_loop|pairing_loop|pairing|listen_ag_loop|listen_ag|relogin_reader|relogin_target>"
         exit 1
     ;;
 

@@ -39,14 +39,15 @@ log_number() {
         failed_register) TARGET_FILE="$FILE_FAILED_REGISTER" ;;
         relogin) TARGET_FILE="$FILE_RELOGIN" ;;
         unofficial) TARGET_FILE="$FILE_UNOFFICIAL" ;;
+        alfagift_success) TARGET_FILE="$FILE_ALFAGIFT_SUCCESS" ;;
+        alfagift_terdaftar) TARGET_FILE="$FILE_ALFAGIFT_TERDAFTAR" ;;
         *) return ;;
     esac
 
     # Lempar ke save_unique
     save_unique "$VALUE" "$TARGET_FILE"
 
-    # === SERVER QUEUE: lapor hasil otomatis ke PC pusat ===
-    # $FILE = path backup yang lagi diproses; basename-nya = nama file di server.
+
     if command -v report_result >/dev/null 2>&1; then
         report_result "$STATUS" "$VALUE" "$(basename "$FILE" 2>/dev/null)"
     fi
