@@ -86,6 +86,14 @@ run_listen_ag_flow() {
             log_number "$OTP_AG_STATUS_TERDAFTAR" "$PHONE"
             return 0
         fi
+        # 5xx "Internal Server Error" = error final per-akun -> alfagift_failed,
+        # STOP requeue. Nomor-belum-terdaftar/service-mati/rate-limit tetap requeue.
+        if printf '%s' "$OTP_ERR" | grep -qiE 'internal server error'; then
+            log "LISTEN_AG: get_otp 5xx ($OTP_ERR) -> $OTP_AG_STATUS_FAILED ($PHONE)"
+            echo "GET_OTP GAGAL (final): $OTP_ERR -> $OTP_AG_STATUS_FAILED"
+            log_number "$OTP_AG_STATUS_FAILED" "$PHONE"
+            return 0
+        fi
         log "LISTEN_AG: get_otp gagal ($OTP_ERR) -> requeue (tak report)"
         echo "GET_OTP GAGAL: $OTP_ERR"
         return 1
@@ -109,8 +117,15 @@ run_listen_ag_flow() {
                     echo "OTP VERIFIED -> $OTP_AG_STATUS_SUCCESS ($PHONE)"
                     return 0
                 else
-
                     rm -f "$TMP"
+                    # 5xx "Internal Server Error" = final per-akun -> alfagift_failed,
+                    # STOP requeue. Rate-limit/kode-salah/sesi-habis tetap requeue.
+                    if printf '%s' "$SET_OUT" | grep -qiE 'internal server error'; then
+                        log "LISTEN_AG: set_otp 5xx ($SET_OUT) -> $OTP_AG_STATUS_FAILED ($PHONE)"
+                        echo "SET_OTP GAGAL (final): $SET_OUT -> $OTP_AG_STATUS_FAILED"
+                        log_number "$OTP_AG_STATUS_FAILED" "$PHONE"
+                        return 0
+                    fi
                     log "LISTEN_AG: set_otp gagal ($SET_OUT) -> requeue (tak report)"
                     echo "SET_OTP GAGAL: $SET_OUT"
                     return 1
@@ -121,9 +136,12 @@ run_listen_ag_flow() {
         NOW=$(date +%s)
         if [ $((NOW - START)) -gt "${OTP_AG_MAX_WAIT:-120}" ]; then
             rm -f "$TMP"
-            log "LISTEN_AG TIMEOUT: OTP tak masuk dlm ${OTP_AG_MAX_WAIT:-120}s -> requeue"
-            echo "TIMEOUT: OTP tidak masuk"
-            return 1
+            # OTP tak masuk dlm batas waktu -> report timeout (QUEUE->DONE/timeout),
+            # STOP requeue. Diparkir buat review manual, bukan dicoba ulang.
+            log "LISTEN_AG TIMEOUT: OTP tak masuk dlm ${OTP_AG_MAX_WAIT:-120}s -> timeout ($PHONE)"
+            echo "TIMEOUT: OTP tidak masuk -> timeout"
+            log_number "timeout" "$PHONE"
+            return 0
         fi
         sleep "${OTP_AG_POLL:-3}"
     done

@@ -33,6 +33,7 @@ FILE_UNOFFICIAL="$FOLDER_AKUN/unofficial.txt" # akun ke-flag klien tidak resmi
 FILE_SESSION_MAP="$FOLDER_AKUN/session_map.txt" # nomor|session_id|file (buat poll)
 FILE_ALFAGIFT_SUCCESS="$FOLDER_AKUN/alfagift_success.txt" # OTP autonomous (listen_ag) sukses
 FILE_ALFAGIFT_TERDAFTAR="$FOLDER_AKUN/alfagift_terdaftar.txt" # akun sudah terdaftar (diminta sandi)
+FILE_ALFAGIFT_FAILED="$FOLDER_AKUN/alfagift_failed.txt" # get_otp/set_otp balas 5xx (Internal Server Error) -> parkir, stop requeue
 
 # =====================
 # ACTIVITY LOG
@@ -139,6 +140,10 @@ OTP_AG_STATUS_SUCCESS="alfagift_success"   # status report saat OTP verified
 # get_otp balas 200 tapi minta kata sandi = akun SUDAH TERDAFTAR (bukan gagal).
 # Report status ini -> server pindah ke DONE/alfagift_terdaftar.
 OTP_AG_STATUS_TERDAFTAR="alfagift_terdaftar"
+# get_otp/set_otp balas "Internal Server Error" (5xx) = error final per-akun
+# (bukan transient) -> report ini biar server parkir ke DONE/alfagift_failed,
+# STOP requeue. Rate-limit/kode-salah/sesi-habis TETAP requeue (tak masuk sini).
+OTP_AG_STATUS_FAILED="alfagift_failed"
 
 # =====================
 # TRANSFER RELOGIN (device-to-device, SIM-less)

@@ -41,6 +41,7 @@ log_number() {
         unofficial) TARGET_FILE="$FILE_UNOFFICIAL" ;;
         alfagift_success) TARGET_FILE="$FILE_ALFAGIFT_SUCCESS" ;;
         alfagift_terdaftar) TARGET_FILE="$FILE_ALFAGIFT_TERDAFTAR" ;;
+        alfagift_failed) TARGET_FILE="$FILE_ALFAGIFT_FAILED" ;;
         *) return ;;
     esac
 
