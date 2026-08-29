@@ -1,4 +1,10 @@
 
+# Dijalankan via `su -c` -> PATH root gak punya binary termux (curl, dll).
+# Prepend usr/bin termux + LD_LIBRARY_PATH (binary termux dynamic-linked).
+TERMUX_PREFIX="/data/data/com.termux/files/usr"
+export PATH="$TERMUX_PREFIX/bin:$PATH"
+export LD_LIBRARY_PATH="$TERMUX_PREFIX/lib:$LD_LIBRARY_PATH"
+
 BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
 . "$BASE_DIR/config.sh"
 
