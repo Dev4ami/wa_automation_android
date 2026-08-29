@@ -70,7 +70,7 @@ GATEWAY_PORT=4000
 GATEWAY=""
 # Override manual (opsional). Isi kalau mau pin IP & skip auto-scan:
 #   SERVER_FIXED="http://192.168.0.23:7070"
-SERVER_FIXED=""
+SERVER_FIXED="http://192.168.1.100:8787"
 # Hasil auto-discovery diisi runtime (scan LAN cari port terbuka). Jangan diisi.
 SERVER=""
 # Cache URL server terakhir yg ketemu (biar run berikutnya instan).
