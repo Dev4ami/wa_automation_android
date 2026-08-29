@@ -55,7 +55,17 @@ discover_server() {
         ( probe_server "$url" && echo "$url" >> "$tmp" ) &
         batch=$((batch + 1))
         # batasi konkurensi biar gak kebanyakan proses sekaligus
-        if [ "$batch" -ge 50 ]; then wait; batch=0; fi
+        if [ "$batch" -ge 50 ]; then
+            wait
+            batch=0
+            # progress per batch: user tahu scan jalan (gak stuck).
+            # kalau server udah ketemu di batch ini, stop lebih awal.
+            if [ -s "$tmp" ]; then
+                log "DISCOVER: scan ${base}1-${i} selesai, server ketemu -> stop"
+                break
+            fi
+            log "DISCOVER: scan ${base}1-${i}/254 ... belum ketemu"
+        fi
         i=$((i + 1))
     done
     wait
