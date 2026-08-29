@@ -1,14 +1,24 @@
 
-# curl fallback: sebagian device GAK punya /system/bin/curl (mis. HP B), padahal
-# agent jalan via `su -c` dgn PATH sistem (tanpa termux). Kalau curl gak ada di
-# PATH, pakai curl termux. LD_LIBRARY_PATH SCOPED di panggilan curl saja (env
-# prefix, BUKAN export global) -> am/pm/dumpsys/tar sistem tetap pakai libc
-# sistem, gak ke-link libc termux. Device yg punya /system/bin/curl tak kesentuh.
+# Fallback binary termux: agent jalan via `su -c` dgn PATH sistem (tanpa termux),
+# jadi tool yg cuma ada di termux (curl di sebagian device, sqlite3 buat listen_ag)
+# ke-resolve "not found". Bikin wrapper HANYA kalau tool absent dari PATH, tunjuk
+# ke binary termux dgn LD_LIBRARY_PATH SCOPED di panggilan (env prefix, BUKAN
+# export global) -> am/pm/dumpsys/tar sistem tetap pakai libc sistem. Device yg
+# punya versi /system/bin tak kesentuh.
+_TERMUX_LIB="/data/data/com.termux/files/usr/lib"
 if ! command -v curl >/dev/null 2>&1; then
     _TERMUX_CURL="/data/data/com.termux/files/usr/bin/curl"
     if [ -x "$_TERMUX_CURL" ]; then
         curl() {
-            LD_LIBRARY_PATH="/data/data/com.termux/files/usr/lib" "$_TERMUX_CURL" "$@"
+            LD_LIBRARY_PATH="$_TERMUX_LIB" "$_TERMUX_CURL" "$@"
+        }
+    fi
+fi
+if ! command -v sqlite3 >/dev/null 2>&1; then
+    _TERMUX_SQLITE="/data/data/com.termux/files/usr/bin/sqlite3"
+    if [ -x "$_TERMUX_SQLITE" ]; then
+        sqlite3() {
+            LD_LIBRARY_PATH="$_TERMUX_LIB" "$_TERMUX_SQLITE" "$@"
         }
     fi
 fi
