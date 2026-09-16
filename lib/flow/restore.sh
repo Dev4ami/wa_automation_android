@@ -1,7 +1,8 @@
 
 prepare_backup_file() {
     # Sumber file = server queue PC, bukan folder lokal lagi.
-    # claim_account: ambil 1 akun dari MASTER + download ke FOLDER_AKUN.
+    # claim_account: ambil 1 akun dari server (MASTER, atau MASTER_ALFAGIFT bila
+    # CLAIM_APP=alfagift) + download ke FOLDER_AKUN.
     claim_account || return 1
 }
 

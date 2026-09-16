@@ -79,6 +79,7 @@ case "$MODE" in
 
     # Loop: restore + login sampai HOME, lalu OTP AUTONOMOUS (listen_ag).
     listen_ag_loop)
+        CLAIM_APP=alfagift   # ambil akun dari MASTER_ALFAGIFT (bukan MASTER umum)
         while true; do
             log "++++++++++++++++++++++++++++++++++++++++"
             rm -f "$BASE_DIR/window_dump.xml"
@@ -94,6 +95,7 @@ case "$MODE" in
         log "++++++++++++++++++++++++++++++++++++++++"
         rm -f "$BASE_DIR/window_dump.xml"
         purge_local_tgz
+        CLAIM_APP=alfagift   # ambil akun dari MASTER_ALFAGIFT (bukan MASTER umum)
         run_restore_flow   || exit 1
         run_login_flow     || exit 1
         run_listen_ag_flow || exit 1
