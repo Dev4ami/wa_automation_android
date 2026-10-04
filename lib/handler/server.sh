@@ -163,8 +163,7 @@ claim_account() {
         return 1
     fi
 
-    # CLAIM_APP diset per-mode di agent.sh (listen_ag=alfagift). Kosong = MASTER umum.
-    RESP=$(curl -s --max-time 15 "$SERVER/claim?device=$DEVICE_ID${CLAIM_APP:+&app=$CLAIM_APP}")
+    RESP=$(curl -s --max-time 15 "$SERVER/claim?device=$DEVICE_ID")
     ST=$(echo "$RESP" | sed -n 's/.*"status":"\([^"]*\)".*/\1/p')
 
     if [ -z "$RESP" ]; then
